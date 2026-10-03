@@ -1,0 +1,29 @@
+@startuml
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 13
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Quản lý trung tâm" as QLTT
+actor "Kỹ thuật viên" as KTV
+actor "Nhân viên tiếp nhận" as NVTN
+
+rectangle "Hệ thống: Phân công kỹ thuật viên và lịch hẹn (luồng L4)" {
+  usecase "UC1: Xem danh sách phiếu\nchờ phân công" as UC1
+  usecase "UC2: Xem gợi ý\nkỹ thuật viên phù hợp" as UC2
+  usecase "UC3: Phân công\nkỹ thuật viên cho phiếu" as UC3
+  usecase "UC4: Đổi kỹ thuật viên\nkèm lý do" as UC4
+  usecase "UC5: Xem phiếu được gán\ntheo hạn cam kết" as UC5
+  usecase "UC6: Đặt lịch hẹn\ngiao – nhận máy" as UC6
+  usecase "UC7: Kiểm tra trùng lịch\nkỹ thuật viên" as UC7
+
+  UC3 .> UC2 : <<include>>
+  UC6 .> UC7 : <<include>>
+}
+
+QLTT -- UC1
+QLTT -- UC3
+QLTT -- UC4
+KTV -- UC5
+NVTN -- UC6
+@enduml
