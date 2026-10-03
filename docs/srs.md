@@ -44,7 +44,7 @@
 
 | Vai trò | Được làm | Không được làm |
 |---|---|---|
-| Quản lý trung tâm | Xem phiếu chờ phân công, xem gợi ý kỹ thuật viên, gán hoặc đổi kỹ thuật viên, xem số điện thoại đầy đủ | Xem hoặc gán phiếu của trung tâm khác (QT-14) |
+| Quản lý trung tâm | Xem phiếu chờ phân công, xem gợi ý kỹ thuật viên, gán hoặc đổi kỹ thuật viên, xem khối lượng công việc của kỹ thuật viên, xem số điện thoại đầy đủ | Xem hoặc gán phiếu của trung tâm khác (QT-14) |
 | Kỹ thuật viên | Xem phiếu được gán cho mình, xem lịch hẹn của mình | Tự nhận hoặc đổi phiếu; xem phiếu của người khác; thấy số điện thoại đầy đủ (QT-15) |
 | Nhân viên tiếp nhận *(suy ra từ bước 11, Mục 6.1)* | Đặt lịch hẹn giao – nhận máy cho phiếu đã phân công | Phân công kỹ thuật viên; thấy số điện thoại đầy đủ (QT-15) |
 
@@ -62,6 +62,8 @@
 | FR6 | Hệ thống hiển thị cho kỹ thuật viên danh sách phiếu được gán cho mình, sắp theo hạn cam kết tăng dần. |
 | FR7 | Hệ thống cho phép nhân viên tiếp nhận tạo lịch hẹn giao hoặc nhận máy cho phiếu đã có kỹ thuật viên. |
 | FR8 | Hệ thống từ chối lịch hẹn chồng lấn thời gian với lịch hẹn khác của cùng kỹ thuật viên. |
+| FR9 | Hệ thống hiển thị cho quản lý số phiếu đang giữ của từng kỹ thuật viên trong trung tâm mình. |
+| FR10 | Hệ thống hiển thị cho kỹ thuật viên danh sách lịch hẹn của mình theo ngày. |
 
 **User Story:**
 
@@ -73,13 +75,18 @@
 | US4 | Là quản lý trung tâm, tôi muốn đổi kỹ thuật viên kèm lý do để truy vết được việc chuyển người. | SHOULD |
 | US5 | Là kỹ thuật viên, tôi muốn xem các phiếu được gán cho tôi sắp theo hạn cam kết để ưu tiên phiếu sắp quá hạn. | SHOULD |
 | US6 | Là nhân viên tiếp nhận, tôi muốn đặt lịch hẹn giao – nhận máy và được cảnh báo khi kỹ thuật viên trùng lịch để không phải hẹn lại khách. | SHOULD |
+| US7 | Là quản lý trung tâm, tôi muốn xem số phiếu đang giữ của từng kỹ thuật viên để phát hiện người đang quá tải. | COULD |
+| US8 | Là kỹ thuật viên, tôi muốn xem lịch hẹn giao – nhận máy của tôi theo ngày để chuẩn bị máy đúng giờ hẹn. | COULD |
 
 **Tiêu chí chấp nhận (story MUST):**
 
+- **US1 – AC1.** GIVEN trung tâm Quận 10 có 3 phiếu ở trạng thái MỚI với hạn cam kết khác nhau, WHEN quản lý trung tâm Quận 10 mở danh sách phiếu chờ phân công, THEN hệ thống hiện đúng 3 phiếu đó, phiếu có hạn cam kết sớm nhất nằm trên cùng.
+- **US1 – AC2 (ngoại lệ).** GIVEN trung tâm không còn phiếu nào ở trạng thái MỚI, WHEN quản lý mở danh sách, THEN hệ thống hiện thông báo "Không có phiếu chờ phân công" và không báo lỗi.
+- **US1 – AC3.** GIVEN có phiếu MỚI thuộc trung tâm Cần Thơ, WHEN quản lý trung tâm Quận 10 mở danh sách, THEN phiếu của Cần Thơ không xuất hiện (QT-14).
 - **US2 – AC1.** GIVEN phiếu nhóm "Màn hình" ở trung tâm Quận 10, WHEN quản lý mở gợi ý, THEN chỉ hiện kỹ thuật viên Quận 10, đang làm việc, tay nghề "Màn hình" ≥ 3, người giữ ít phiếu nhất đứng đầu.
-- **US2 – AC2.** GIVEN không có kỹ thuật viên phù hợp, WHEN quản lý mở gợi ý, THEN hệ thống báo "Không có kỹ thuật viên phù hợp" và không hiện nút Phân công.
+- **US2 – AC2 (ngoại lệ).** GIVEN không có kỹ thuật viên phù hợp, WHEN quản lý mở gợi ý, THEN hệ thống báo "Không có kỹ thuật viên phù hợp" và không hiện nút Phân công.
 - **US3 – AC1.** GIVEN phiếu ở trạng thái MỚI, WHEN quản lý chọn kỹ thuật viên hợp lệ và bấm Phân công, THEN phiếu chuyển sang ĐÃ PHÂN CÔNG và có một dòng lịch sử MỚI → ĐÃ PHÂN CÔNG.
-- **US3 – AC2.** GIVEN phiếu vừa được quản lý khác phân công, WHEN quản lý bấm Phân công, THEN hệ thống từ chối và báo phiếu đã có người xử lý.
+- **US3 – AC2 (ngoại lệ).** GIVEN phiếu vừa được quản lý khác phân công, WHEN quản lý bấm Phân công, THEN hệ thống từ chối và báo phiếu đã có người xử lý.
 
 ---
 
@@ -115,14 +122,16 @@
 
 | Mã FR | Yêu cầu chức năng | User Story | Use Case | MoSCoW | Test case (BT3) |
 |---|---|---|---|---|---|
-| FR1 | Danh sách phiếu MỚI theo hạn cam kết | US1 | UC1 | MUST | |
-| FR2 | Gợi ý kỹ thuật viên phù hợp | US2 | UC2 | MUST | |
-| FR3 | Gán kỹ thuật viên, chuyển trạng thái, ghi lịch sử | US3 | UC3 | MUST | |
-| FR4 | Từ chối gán sai điều kiện | US3 | UC3 | MUST | |
-| FR5 | Đổi kỹ thuật viên có lý do | US4 | UC4 | SHOULD | |
-| FR6 | Kỹ thuật viên xem phiếu của mình | US5 | UC5 | SHOULD | |
-| FR7 | Tạo lịch hẹn giao/nhận máy | US6 | UC6 | SHOULD | |
-| FR8 | Từ chối lịch hẹn trùng | US6 | UC7 | SHOULD | |
+| FR1 | Danh sách phiếu MỚI theo hạn cam kết | US1 | UC1 | MUST | Điền ở BT3 |
+| FR2 | Gợi ý kỹ thuật viên phù hợp | US2 | UC2 | MUST | Điền ở BT3 |
+| FR3 | Gán kỹ thuật viên, chuyển trạng thái, ghi lịch sử | US3 | UC3 | MUST | Điền ở BT3 |
+| FR4 | Từ chối gán sai điều kiện | US3 | UC3 | MUST | Điền ở BT3 |
+| FR5 | Đổi kỹ thuật viên có lý do | US4 | UC4 | SHOULD | Điền ở BT3 |
+| FR6 | Kỹ thuật viên xem phiếu của mình | US5 | UC5 | SHOULD | Điền ở BT3 |
+| FR7 | Tạo lịch hẹn giao/nhận máy | US6 | UC6 | SHOULD | Điền ở BT3 |
+| FR8 | Từ chối lịch hẹn trùng | US6 | UC7 | SHOULD | Điền ở BT3 |
+| FR9 | Xem số phiếu đang giữ của từng kỹ thuật viên | US7 | UC8 | COULD | — (không hiện thực) |
+| FR10 | Kỹ thuật viên xem lịch hẹn của mình | US8 | UC9 | COULD | — (không hiện thực) |
 
 ---
 
@@ -130,12 +139,12 @@
 
 ![Use Case Diagram](usecase-diagram.png)
 
-*Mã nguồn: `docs/usecase.puml`*
+*File gốc: `docs/usecase.drawio` (draw.io) · mã PlantUML tương đương: `docs/usecase.puml`*
 
 | Actor | Use case |
 |---|---|
-| Quản lý trung tâm | UC1, UC3 (kèm UC2), UC4 |
-| Kỹ thuật viên | UC5 |
+| Quản lý trung tâm | UC1, UC3 (kèm UC2), UC4, UC8 |
+| Kỹ thuật viên | UC5, UC9 |
 | Nhân viên tiếp nhận | UC6 (kèm UC7) |
 
 - `<<include>>` UC3 → UC2: lần phân công nào cũng phải qua bước gợi ý để bảo đảm QT-08.

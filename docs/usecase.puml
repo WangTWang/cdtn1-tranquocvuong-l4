@@ -16,6 +16,8 @@ rectangle "Hệ thống: Phân công kỹ thuật viên và lịch hẹn (luồn
   usecase "UC5: Xem phiếu được gán\ntheo hạn cam kết" as UC5
   usecase "UC6: Đặt lịch hẹn\ngiao – nhận máy" as UC6
   usecase "UC7: Kiểm tra trùng lịch\nkỹ thuật viên" as UC7
+  usecase "UC8: Xem khối lượng công việc\ncủa kỹ thuật viên" as UC8
+  usecase "UC9: Xem lịch hẹn\ncủa mình" as UC9
 
   UC3 .> UC2 : <<include>>
   UC6 .> UC7 : <<include>>
@@ -24,6 +26,8 @@ rectangle "Hệ thống: Phân công kỹ thuật viên và lịch hẹn (luồn
 QLTT -- UC1
 QLTT -- UC3
 QLTT -- UC4
+QLTT -- UC8
 KTV -- UC5
+KTV -- UC9
 NVTN -- UC6
 @enduml
