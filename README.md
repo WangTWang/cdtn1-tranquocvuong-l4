@@ -19,8 +19,14 @@ Hiện mới có smoke test (hoàn thiện ở BT2):
 2. `npm run dev` → mở http://localhost:3000/health
 
 ## 4. Cấu trúc thư mục
-- `docs/` – tài liệu: SRS (`srs.md`), Use Case Diagram (`usecase.drawio`), API contract (`api-contract.md`), khai báo sử dụng AI (`ai-disclosure.md`)
-- `src/` – mã nguồn
+- `docs/` – tài liệu Bài tập 1:
+  - `srs.md` – đặc tả yêu cầu (SRS rút gọn), Use Case Diagram và đặc tả use case
+  - `design.md` – kiến trúc, mô hình dữ liệu, wireframe
+  - `api-contract.md` – hợp đồng API
+  - `ai-disclosure.md` – bảng khai báo sử dụng AI
+  - `usecase.drawio`, `architecture.drawio`, `erd.drawio`, `wireframes.drawio` – file sơ đồ gốc (kèm ảnh PNG)
+- `db/schema.sql` – DDL skeleton (PostgreSQL 16)
+- `src/` – mã nguồn (hiện mới có smoke test)
 - `tests/` – kiểm thử (BT3)
 - `data/` – dữ liệu mẫu nhỏ
 
@@ -31,6 +37,6 @@ Hiện mới có smoke test (hoàn thiện ở BT2):
 - [x] Khởi tạo repo, cấu trúc thư mục, smoke test `/health` (buổi 2)
 - [x] SRS rút gọn và Use Case Diagram (buổi 3–4)
 - [x] API contract, 8 User Story, file Use Case draw.io (buổi 4)
-- [ ] Kiến trúc, ERD, wireframe (buổi 5–6)
+- [x] Kiến trúc, ERD + DDL, wireframe – hoàn tất Bài tập 1 (buổi 5–6)
 - [ ] Module phân công kỹ thuật viên (buổi 8–10)
 - [ ] Module lịch hẹn (buổi 10–12)

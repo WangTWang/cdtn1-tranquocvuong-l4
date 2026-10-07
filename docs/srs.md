@@ -3,7 +3,8 @@
 
 **Sinh viên:** Trần Quốc Vương – 2374802010577 – Track SE  
 **Học phần:** Chuyên đề Tốt nghiệp 1 · HK1 2026–2027  
-**Tài liệu tham chiếu:** Case study Smart CRM – Mekong Mobile. Cấu trúc SRS rút gọn theo tinh thần ISO/IEC/IEEE 29148.
+**Tài liệu tham chiếu:** Case study Smart CRM – Mekong Mobile. Cấu trúc SRS rút gọn theo tinh thần ISO/IEC/IEEE 29148.  
+**Tài liệu thiết kế đi kèm:** `docs/design.md` (kiến trúc, mô hình dữ liệu, wireframe), `docs/api-contract.md`, `db/schema.sql`.
 
 ---
 
@@ -36,6 +37,9 @@
 | Kỹ thuật viên | Nhân viên sửa chữa, có tay nghề theo nhóm sự cố và trung tâm làm việc | technician |
 | Tay nghề | Mức thành thạo 1–5 của kỹ thuật viên với một nhóm sự cố | technician_skill.proficiency |
 | Lịch hẹn | Khung thời gian hẹn giao – nhận máy | appointment |
+| Lịch sử trạng thái | Các lần chuyển trạng thái của phiếu, kèm thời điểm và người thực hiện | ticket_status_log |
+| Lịch sử phân công | Các lần phân công và đổi kỹ thuật viên của phiếu, kèm lý do | ticket_assignment_log |
+| Trung tâm bảo hành | Nơi tiếp nhận phiếu và nơi kỹ thuật viên làm việc | service_center |
 | Phiếu đang giữ | Phiếu đã gán cho kỹ thuật viên, trạng thái ĐÃ PHÂN CÔNG hoặc ĐANG XỬ LÝ *(suy ra)* | — |
 
 ---
