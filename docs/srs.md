@@ -25,6 +25,7 @@
 | W3 | Tự động phân công không cần quản lý duyệt | Quản lý vẫn là người quyết định |
 | W4 | Gửi SMS/Zalo nhắc lịch hẹn | Cần hệ thống ngoài, vượt quy mô prototype |
 | W5 | Khách hàng tự đặt lịch trực tuyến | Khách không đăng nhập ở phiên bản này |
+| W6 | Kỹ thuật viên xem lịch hẹn của mình theo ngày | Để phiên bản sau; giữ phạm vi 5–7 User Story |
 
 **Thuật ngữ** (theo Bảng 3.1 của case study):
 
@@ -36,6 +37,7 @@
 | Nhóm sự cố | Màn hình, pin, sạc, phần mềm, nước vào, khác | issue_category |
 | Kỹ thuật viên | Nhân viên sửa chữa, có tay nghề theo nhóm sự cố và trung tâm làm việc | technician |
 | Tay nghề | Mức thành thạo 1–5 của kỹ thuật viên với một nhóm sự cố | technician_skill.proficiency |
+| Bậc tay nghề | Bậc chung của kỹ thuật viên: SO_CAP, TRUNG_CAP, CAO_CAP | technician.level |
 | Lịch hẹn | Khung thời gian hẹn giao – nhận máy | appointment |
 | Lịch sử trạng thái | Các lần chuyển trạng thái của phiếu, kèm thời điểm và người thực hiện | ticket_status_log |
 | Lịch sử phân công | Các lần phân công và đổi kỹ thuật viên của phiếu, kèm lý do | ticket_assignment_log |
@@ -48,8 +50,8 @@
 
 | Vai trò | Được làm | Không được làm |
 |---|---|---|
-| Quản lý trung tâm | Xem phiếu chờ phân công, xem gợi ý kỹ thuật viên, gán hoặc đổi kỹ thuật viên, xem khối lượng công việc của kỹ thuật viên, xem số điện thoại đầy đủ | Xem hoặc gán phiếu của trung tâm khác (QT-14) |
-| Kỹ thuật viên | Xem phiếu được gán cho mình, xem lịch hẹn của mình | Tự nhận hoặc đổi phiếu; xem phiếu của người khác; thấy số điện thoại đầy đủ (QT-15) |
+| Quản lý trung tâm | Xem phiếu chờ phân công, xem gợi ý kỹ thuật viên, gán hoặc đổi kỹ thuật viên, xem số phiếu đang giữ của từng kỹ thuật viên, xem số điện thoại đầy đủ | Xem hoặc gán phiếu của trung tâm khác (QT-14) |
+| Kỹ thuật viên | Xem phiếu được gán cho mình | Tự nhận hoặc đổi phiếu; xem phiếu của người khác; thấy số điện thoại đầy đủ (QT-15) |
 | Nhân viên tiếp nhận *(suy ra từ bước 11, Mục 6.1)* | Đặt lịch hẹn giao – nhận máy cho phiếu đã phân công | Phân công kỹ thuật viên; thấy số điện thoại đầy đủ (QT-15) |
 
 ---
@@ -67,7 +69,6 @@
 | FR7 | Hệ thống cho phép nhân viên tiếp nhận tạo lịch hẹn giao hoặc nhận máy cho phiếu đã có kỹ thuật viên. |
 | FR8 | Hệ thống từ chối lịch hẹn chồng lấn thời gian với lịch hẹn khác của cùng kỹ thuật viên. |
 | FR9 | Hệ thống hiển thị cho quản lý số phiếu đang giữ của từng kỹ thuật viên trong trung tâm mình. |
-| FR10 | Hệ thống hiển thị cho kỹ thuật viên danh sách lịch hẹn của mình theo ngày. |
 
 **User Story:**
 
@@ -75,12 +76,11 @@
 |---|---|---|
 | US1 | Là quản lý trung tâm, tôi muốn xem danh sách phiếu chưa phân công sắp theo hạn cam kết để xử lý phiếu gấp trước. | MUST |
 | US2 | Là quản lý trung tâm, tôi muốn hệ thống gợi ý kỹ thuật viên phù hợp theo tay nghề, trung tâm và số phiếu đang giữ để giao đúng người và chia việc đều. | MUST |
-| US3 | Là quản lý trung tâm, tôi muốn gán phiếu cho kỹ thuật viên để phiếu chuyển sang "Đã phân công" và biết ai đang xử lý. | MUST |
+| US3 | Là quản lý trung tâm, tôi muốn gán phiếu cho kỹ thuật viên để phiếu chuyển sang ĐÃ PHÂN CÔNG và biết ai đang xử lý. | MUST |
 | US4 | Là quản lý trung tâm, tôi muốn đổi kỹ thuật viên kèm lý do để truy vết được việc chuyển người. | SHOULD |
 | US5 | Là kỹ thuật viên, tôi muốn xem các phiếu được gán cho tôi sắp theo hạn cam kết để ưu tiên phiếu sắp quá hạn. | SHOULD |
 | US6 | Là nhân viên tiếp nhận, tôi muốn đặt lịch hẹn giao – nhận máy và được cảnh báo khi kỹ thuật viên trùng lịch để không phải hẹn lại khách. | SHOULD |
 | US7 | Là quản lý trung tâm, tôi muốn xem số phiếu đang giữ của từng kỹ thuật viên để phát hiện người đang quá tải. | COULD |
-| US8 | Là kỹ thuật viên, tôi muốn xem lịch hẹn giao – nhận máy của tôi theo ngày để chuẩn bị máy đúng giờ hẹn. | COULD |
 
 **Tiêu chí chấp nhận (story MUST):**
 
@@ -118,7 +118,7 @@
 | QT-15 | Số điện thoại hiển thị dạng che, trừ quản lý và ban giám đốc | Case study |
 | RB-01 | Chỉ phiếu MỚI được phân công; chỉ phiếu ĐÃ PHÂN CÔNG được đổi kỹ thuật viên | Suy ra từ QT-06, Hình 6.2 |
 | RB-02 | Hai lịch hẹn của cùng kỹ thuật viên không được chồng lấn thời gian | Suy ra từ Mục 7 – L4 |
-| RB-03 | Lịch hẹn: kết thúc sau bắt đầu, không ở quá khứ, không rơi vào Chủ nhật | Suy ra từ QT-04 |
+| RB-03 | Lịch hẹn: kết thúc sau bắt đầu và trong cùng ngày, không ở quá khứ, không rơi vào Chủ nhật | Suy ra từ QT-04 |
 
 ---
 
@@ -134,8 +134,7 @@
 | FR6 | Kỹ thuật viên xem phiếu của mình | US5 | UC5 | SHOULD | Điền ở BT3 |
 | FR7 | Tạo lịch hẹn giao/nhận máy | US6 | UC6 | SHOULD | Điền ở BT3 |
 | FR8 | Từ chối lịch hẹn trùng | US6 | UC7 | SHOULD | Điền ở BT3 |
-| FR9 | Xem số phiếu đang giữ của từng kỹ thuật viên | US7 | UC8 | COULD | — (không hiện thực) |
-| FR10 | Kỹ thuật viên xem lịch hẹn của mình | US8 | UC9 | COULD | — (không hiện thực) |
+| FR9 | Xem số phiếu đang giữ của từng kỹ thuật viên | US7 | UC8 | COULD | Không kiểm thử (COULD, ngoài phạm vi BT3) |
 
 ---
 
@@ -148,7 +147,7 @@
 | Actor | Use case |
 |---|---|
 | Quản lý trung tâm | UC1, UC3 (kèm UC2), UC4, UC8 |
-| Kỹ thuật viên | UC5, UC9 |
+| Kỹ thuật viên | UC5 |
 | Nhân viên tiếp nhận | UC6 (kèm UC7) |
 
 - `<<include>>` UC3 → UC2: lần phân công nào cũng phải qua bước gợi ý để bảo đảm QT-08.

@@ -38,7 +38,7 @@ Tài liệu này gồm ba thành phần còn lại của Bài tập 1: sơ đồ
 | 4 | Lưu trữ | PostgreSQL | `UPDATE ticket ... WHERE ticket_id = 123 AND status = 'MOI'`; `INSERT INTO ticket_status_log`; `INSERT INTO ticket_assignment_log`; COMMIT |
 
 - **Đường thành công (đi lên):** CSDL báo cập nhật 1 dòng → Repository trả kết quả → Service COMMIT và trả thông tin phân công → Controller trả HTTP 201 → màn hình báo thành công, phiếu rời danh sách chờ.
-- **Luồng ngoại lệ 5a (phiếu vừa được quản lý khác phân công):** lệnh UPDATE cập nhật 0 dòng → Service ROLLBACK và báo lỗi "phiếu đã được phân công" → Controller chuyển thành HTTP 409 → màn hình hiện thông báo ở vùng số 3 của Wireframe 2. Không lớp nào "nhảy cóc".
+- **Luồng ngoại lệ 5a (phiếu vừa được quản lý khác phân công):** lệnh UPDATE cập nhật 0 dòng → Service ROLLBACK và báo lỗi "Phiếu đã được phân công cho <tên kỹ thuật viên>" → Controller chuyển thành HTTP 409 → màn hình hiện thông báo ở vùng số 3 của Wireframe 2. Không lớp nào "nhảy cóc".
 
 ### 1.4. Giải thích lựa chọn kiến trúc
 
@@ -50,7 +50,7 @@ Tài liệu này gồm ba thành phần còn lại của Bài tập 1: sơ đồ
 
 4. **Gắn với NFR4 (khả dụng).** Vì NFR4 yêu cầu quản lý phân công xong một phiếu trong không quá 3 lần bấm, tôi cho màn hình phân công nhận danh sách gợi ý đã lọc và xếp sẵn từ SuggestionService trong một lần gọi (E2), thay vì để quản lý tự tìm và lọc kỹ thuật viên. Đánh đổi là mỗi lần mở màn hình phải chạy một truy vấn đếm số phiếu đang giữ của từng kỹ thuật viên; chấp nhận được với 38 kỹ thuật viên và nhờ đó không phải lưu một cột đếm dễ sai lệch.
 
-5. **Gắn với yêu cầu kiểm thử của BT2.** Vì BT2 yêu cầu unit test cho lớp nghiệp vụ, tôi tách lớp Repository thành giao diện riêng để khi test có thể thay bằng repository giả trong bộ nhớ, không cần cơ sở dữ liệu thật. Đánh đổi là thêm một lớp trừu tượng; chấp nhận được ở quy mô 6 bảng.
+5. **Gắn với yêu cầu kiểm thử của BT2.** Vì BT2 yêu cầu unit test cho lớp nghiệp vụ, tôi tách lớp Repository thành giao diện riêng để khi test có thể thay bằng repository giả trong bộ nhớ, không cần cơ sở dữ liệu thật. Đánh đổi là thêm một lớp trừu tượng; chấp nhận được ở quy mô 11 bảng (6 bảng cốt lõi).
 
 Tôi **không** dùng microservices, hàng đợi hay cache vì không có yêu cầu phi chức năng nào trong `docs/srs.md` cần đến.
 
@@ -75,9 +75,9 @@ ERD dùng ký pháp chân chim, gồm 6 bảng cốt lõi của luồng L4. Các
 | `technician_skill` | Tay nghề của kỹ thuật viên theo nhóm sự cố | (`technician_id`, `category_id`) | FR2, FR4 (QT-08) |
 | `ticket_status_log` | Lịch sử chuyển trạng thái phiếu | `log_id` | FR3 (QT-06) |
 | `ticket_assignment_log` | Lịch sử phân công và đổi kỹ thuật viên | `assignment_id` | FR3, FR5 (QT-07) |
-| `appointment` | Lịch hẹn giao – nhận máy | `appointment_id` | FR7, FR8, FR10 |
+| `appointment` | Lịch hẹn giao – nhận máy | `appointment_id` | FR7, FR8 |
 
-Kiểm ngược lại: FR1–FR10 đều có ít nhất một bảng phục vụ; không có bảng nào không gắn với yêu cầu.
+Kiểm ngược lại: FR1–FR9 đều có ít nhất một bảng phục vụ; không có bảng nào không gắn với yêu cầu.
 
 **Bảng phụ trợ dùng chung** (mức tối thiểu, không tính vào 6 bảng cốt lõi): `employee`, `service_center`, `issue_category`, `customer`, `device`. Các bảng `customer`, `device` và việc tạo `ticket` thuộc luồng L2; luồng L4 chỉ đọc.
 
@@ -100,7 +100,7 @@ Kiểm ngược lại: FR1–FR10 đều có ít nhất một bảng phục vụ
 | `idx_ticket_center_status_due` | `ticket(center_id, status, due_date)` | FR1, NFR1: danh sách phiếu chờ phân công của một trung tâm theo hạn cam kết |
 | `idx_ticket_tech_status_due` | `ticket(technician_id, status, due_date)` | FR6: phiếu được gán của tôi; FR2: đếm số phiếu đang giữ |
 | `idx_skill_category_prof` | `technician_skill(category_id, proficiency)` | FR2, QT-08: lọc kỹ thuật viên có tay nghề ≥ 3 |
-| `idx_appt_tech_start` | `appointment(technician_id, start_at)` | FR8: kiểm tra trùng lịch; FR10 |
+| `idx_appt_tech_start` | `appointment(technician_id, start_at)` | FR8: kiểm tra trùng lịch |
 | `idx_status_log_ticket` | `ticket_status_log(ticket_id, changed_at)` | QT-06: xem lịch sử trạng thái của một phiếu |
 | `idx_assign_log_ticket` | `ticket_assignment_log(ticket_id, changed_at)` | FR5, QT-07: truy vết các lần đổi kỹ thuật viên |
 
@@ -220,7 +220,7 @@ CREATE INDEX idx_ticket_tech_status_due   ON ticket (technician_id, status, due_
 | # | Trên màn hình | Cột trong ERD | Nguồn |
 |---|---|---|---|
 | 1 | Thông tin phiếu, khách hàng, số điện thoại dạng che | `ticket.ticket_code`, `ticket.status`, `customer.full_name`, `customer.phone` | UC6, QT-15 |
-| 1 | Kỹ thuật viên | `employee.full_name` (qua `ticket.technician_id`) | UC6 điều kiện trước |
+| 1 | Kỹ thuật viên | `employee.full_name` (qua `ticket.technician_id` → `technician.employee_id`) | UC6 điều kiện trước |
 | 2 | Loại lịch hẹn | `appointment.type` | FR7 |
 | 3 | Bắt đầu | `appointment.start_at` | FR7, RB-03 |
 | 4 | Kết thúc | `appointment.end_at` | FR7, RB-03 |
@@ -237,10 +237,10 @@ CREATE INDEX idx_ticket_tech_status_due   ON ticket (technician_id, status, due_
 | # | Mục kiểm chứng | Kết quả | Vị trí |
 |---|---|---|---|
 | 1 | Đủ 5 đầu mục: SRS, Use Case, kiến trúc, mô hình dữ liệu, wireframe | Đạt | `srs.md`; tài liệu này mục 1, 2, 3 |
-| 2 | SRS đủ 6 mục; ≥ 4 FR có mã; ≥ 3 NFR có ngưỡng số | Đạt: 10 FR, 4 NFR | `srs.md` mục 1–6 |
-| 3 | User Story chuẩn INVEST, có mức MoSCoW | Đạt: 8 story (3 MUST, 3 SHOULD, 2 COULD) theo yêu cầu ≥ 8 của buổi 4 | `srs.md` mục 3 |
+| 2 | SRS đủ 6 mục; ≥ 4 FR có mã; ≥ 3 NFR có ngưỡng số | Đạt: 9 FR, 4 NFR | `srs.md` mục 1–6 |
+| 3 | User Story chuẩn INVEST, có mức MoSCoW | Đạt: 7 story (3 MUST, 3 SHOULD, 1 COULD) | `srs.md` mục 3 |
 | 4 | Mỗi FR truy vết tới ≥ 1 User Story | Đạt, không ô trống | `srs.md` mục 6 |
-| 5 | Use Case Diagram ≥ 1 actor, ≥ 5 use case, có ranh giới và chú thích | Đạt: 3 actor, 9 use case | `srs.md` mục 7 |
+| 5 | Use Case Diagram ≥ 1 actor, ≥ 5 use case, có ranh giới và chú thích | Đạt: 3 actor, 8 use case | `srs.md` mục 7 |
 | 6 | Đặc tả use case quan trọng nhất: luồng chính + ≥ 1 luồng ngoại lệ | Đạt: UC3 (5 ngoại lệ), UC6 (4 ngoại lệ) | `srs.md` mục 8 |
 | 7 | Sơ đồ kiến trúc có chú thích, đọc được độc lập, ghi rõ cách các lớp trao đổi | Đạt | Mục 1.1 |
 | 8 | ≥ 3 câu giải thích lựa chọn kiến trúc, gắn NFR, có đánh đổi | Đạt: 5 câu | Mục 1.4 |
@@ -258,5 +258,5 @@ CREATE INDEX idx_ticket_tech_status_due   ON ticket (technician_id, status, due_
 | Nhóm sự cố | — | — | `issue_category`, `category_id` | "Nhóm sự cố" |
 | Hạn cam kết | "hạn cam kết" (UC5) | — | `ticket.due_date` | "Hạn cam kết" |
 | Trạng thái phiếu | — | AssignmentService (chuyển trạng thái) | `ticket.status`, `ticket_status_log` | "Trạng thái" |
-| Lịch hẹn | "lịch hẹn" (UC6, UC9) | AppointmentService | `appointment` | "Lịch hẹn", "Loại lịch hẹn" |
+| Lịch hẹn | "lịch hẹn" (UC6, UC7) | AppointmentService | `appointment` | "Lịch hẹn", "Loại lịch hẹn" |
 | Phiếu đang giữ | — | SuggestionService | Tính bằng COUNT trên `ticket` | "Số phiếu đang giữ" |

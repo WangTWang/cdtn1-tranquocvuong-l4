@@ -129,7 +129,7 @@ CREATE TABLE ticket_assignment_log (
     )
 );
 
--- Lich hen giao - nhan may: FR7, FR8, FR10
+-- Lich hen giao - nhan may: FR7, FR8
 CREATE TABLE appointment (
     appointment_id  BIGSERIAL     PRIMARY KEY,
     ticket_id       BIGINT        NOT NULL REFERENCES ticket(ticket_id),
@@ -161,7 +161,7 @@ CREATE INDEX idx_ticket_tech_status_due ON ticket (technician_id, status, due_da
 -- FR2 + QT-08: loc ky thuat vien co tay nghe >= 3 voi mot nhom su co
 CREATE INDEX idx_skill_category_prof ON technician_skill (category_id, proficiency);
 
--- FR8: kiem tra trung lich cua mot ky thuat vien; FR10: lich hen cua toi theo ngay
+-- FR8: kiem tra trung lich cua mot ky thuat vien
 CREATE INDEX idx_appt_tech_start ON appointment (technician_id, start_at);
 
 -- QT-06: xem lich su trang thai cua mot phieu

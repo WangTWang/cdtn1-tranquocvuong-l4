@@ -36,7 +36,7 @@ Hiện mới có smoke test (hoàn thiện ở BT2):
 ## 6. Trạng thái hiện tại
 - [x] Khởi tạo repo, cấu trúc thư mục, smoke test `/health` (buổi 2)
 - [x] SRS rút gọn và Use Case Diagram (buổi 3–4)
-- [x] API contract, 8 User Story, file Use Case draw.io (buổi 4)
+- [x] API contract, 7 User Story, file Use Case draw.io (buổi 4)
 - [x] Kiến trúc, ERD + DDL, wireframe – hoàn tất Bài tập 1 (buổi 5–6)
 - [ ] Module phân công kỹ thuật viên (buổi 8–10)
 - [ ] Module lịch hẹn (buổi 10–12)

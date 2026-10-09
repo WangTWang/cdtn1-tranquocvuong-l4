@@ -18,21 +18,16 @@
 
 | Công cụ AI | Dùng vào việc gì | Áp dụng ở phần nào (File / Mục) | Đã kiểm chứng & Chỉnh sửa thế nào |
 | :--- | :--- | :--- | :--- |
-| **Claude** | Phân tích case study (actor, luồng, dữ liệu, quy tắc, trạng thái), gợi ý chọn luồng L4 và soạn nháp câu phạm vi, User Story | Phiếu phạm vi buổi 2; nền cho mục 1–3 của `srs.md` | Đối chiếu với Bảng 2.1, Mục 6.1, Mục 7, Bảng 9.1, Hình 6.2 và Bảng 10.1 của case study |
-| **Claude** | Soạn nháp SRS rút gọn 6 mục: phạm vi và WON'T, vai trò, FR1–FR10, US1–US8 kèm MoSCoW và tiêu chí chấp nhận, NFR1–NFR4, quy tắc nghiệp vụ, bảng truy vết | `srs.md` – mục 1 đến 6 | Đối chiếu với cấu trúc 6 mục và checklist chấm BT1 của tài liệu buổi 3; các quy tắc tự suy ra (RB-01, RB-02, RB-03, vai trò Nhân viên tiếp nhận) được ghi rõ nguồn "suy ra" trong bài |
-| **Claude** | Viết mã PlantUML cho Use Case Diagram (3 actor, 9 use case, 2 quan hệ include) và sinh ảnh PNG | `docs/usecase.puml`, `docs/usecase-diagram.png`; `srs.md` – mục 7 | Tự chạy mã trên planttext.com với bản 7 use case, kiểm tra sơ đồ hiển thị đủ actor, use case, quan hệ include và chữ tiếng Việt; bản 9 use case đã xem lại ảnh trên GitHub |
-| **Claude** | Soạn nháp đặc tả UC3 (Phân công kỹ thuật viên) và UC6 (Đặt lịch hẹn) gồm luồng chính và luồng ngoại lệ | `srs.md` – mục 8 | Đối chiếu với mẫu đặc tả UC2 trong tài liệu buổi 3 (điều kiện trước/sau, cách đánh số ngoại lệ 3a) |
-| **Claude** | Rà soát `srs.md` theo 4 lỗi thường gặp và 7 tiêu chí SRS tốt của buổi 3 | `srs.md` – dòng FR7, bảng truy vết, đường dẫn ảnh, mục "Liên quan" của UC6 | Phát hiện và sửa 4 chỗ: tách FR7 thành FR7 và FR8 (lỗi hai yêu cầu trong một câu), cập nhật bảng truy vết, sửa đường dẫn ảnh sơ đồ, bổ sung FR8 vào UC6 |
-| **Claude** | Bổ sung US7, US8 (FR9, FR10, UC8, UC9), viết tiêu chí chấp nhận Given–When–Then cho US1, điền cột Test case của bảng truy vết | `docs/srs.md` – mục 3, 6, 7 | Đối chiếu với checklist 10 mục của buổi 4 (≥ 8 story, mỗi story MUST ≥ 2 tiêu chí, có tiêu chí ngoại lệ, bảng truy vết không ô trống) |
-| **Claude** | Tạo file sơ đồ Use Case dạng draw.io kèm chú thích và đặc tả UC3 | `docs/usecase.drawio` | Mở file bằng app.diagrams.net để kiểm tra hiển thị; đối chiếu 7 lỗi thường gặp khi vẽ Use Case Diagram của buổi 4 |
-| **Claude** | Soạn API contract: 6 endpoint, request/response JSON mẫu, mã trạng thái HTTP, bảng validation, bảng truy vết endpoint về User Story | `docs/api-contract.md` | Đối chiếu từng endpoint với FR, US trong `docs/srs.md` và quy tắc QT-07, QT-08, QT-14, QT-15 của case study |
-| **Claude** | Vẽ sơ đồ kiến trúc phân lớp và soạn 5 câu lập luận lựa chọn kiến trúc gắn với NFR | `docs/architecture.drawio`, `docs/design.md` – mục 1 | Mở file bằng app.diagrams.net để kiểm tra; đối chiếu 4 lớp và nguyên tắc phụ thuộc một chiều với slide buổi 5; đối chiếu từng câu lập luận với NFR1–NFR4 trong `docs/srs.md` |
-| **Claude** | Thiết kế ERD 6 bảng, bảng index, giải thích chuẩn hóa và viết SQL DDL skeleton | `docs/erd.drawio`, `db/schema.sql`, `docs/design.md` – mục 2 | Tự chạy `db/schema.sql` trên PostgreSQL 16 ở máy cá nhân, tạo được 11 bảng và 6 index không lỗi; soi lại năm lỗi ERD và checklist A4 của tài liệu tự học buổi 5 |
-| **Claude** | Vẽ wireframe 3 màn hình và lập bảng đối chiếu trường trên màn hình với cột trong ERD | `docs/wireframes.drawio`, `docs/design.md` – mục 3 | Mở file bằng app.diagrams.net; đối chiếu từng trường với ERD và với luồng ngoại lệ của UC3, UC6 |
-| **Claude** | Lập bảng rà soát 11 mục kiểm chứng và bảng đối chiếu thuật ngữ; gộp tài liệu thành file nộp | `docs/design.md` – mục 4; file PDF nộp BT1 | Đọc lại toàn bộ file PDF trước khi nộp |
-| **Claude** | Giải thích đáp án quiz buổi 3 | Quiz Buổi 3 trên Elearning | Đối chiếu từng đáp án với tài liệu buổi 3 (IEEE 830 → ISO/IEC/IEEE 29148, bảng truy vết, MoSCoW, include/extend) |
-| **Claude** | Hướng dẫn cài môi trường, cung cấp mã mẫu endpoint `/health`; dựng cấu trúc thư mục repo và soạn `.gitignore`, `.env.example`, `README.md` khung, `package.json` | `src/index.js`, `.gitignore`, `.env.example`, `README.md`, `package.json` | Tự cài Node.js, Git, PostgreSQL và chạy lệnh kiểm tra phiên bản; tự chạy smoke test, mở `/health` trả về `{"status":"ok"}`; tự chạy `git status` kiểm tra không có `node_modules/` trước khi commit |
-| *--- không dùng ---* | *Các phần tự thực hiện* | Tạo repo GitHub, chạy PlantUML và xuất ảnh, commit và push | Tự thực hiện trên máy cá nhân |
+| **Claude** | Phân tích case study; gợi ý chọn luồng L4; soạn nháp câu phạm vi và User Story | Phiếu phạm vi buổi 2; `docs/srs.md` mục 1–3 | Đối chiếu với Bảng 2.1, Mục 6.1, Mục 7, Bảng 9.1, Bảng 10.1 của case study |
+| **Claude** | Soạn nháp SRS 6 mục (FR1–FR9, US1–US7 kèm MoSCoW và tiêu chí Given–When–Then, NFR1–NFR4, quy tắc, bảng truy vết); rà soát và sửa lỗi (tách FR7 thành FR7/FR8, rút còn 7 User Story) | `docs/srs.md` | Đối chiếu với cấu trúc 6 mục, 4 lỗi phát biểu yêu cầu và checklist của buổi 3, buổi 4; các quy tắc tự suy ra (RB-01, RB-02, RB-03) ghi rõ nguồn "suy ra" |
+| **Claude** | Vẽ Use Case Diagram (3 actor, 8 use case, 2 quan hệ include); soạn đặc tả UC3, UC6 | `docs/usecase.drawio`, `docs/usecase.puml`, `docs/srs.md` mục 7–8 | Mở file bằng app.diagrams.net và planttext.com để kiểm tra; đối chiếu 7 lỗi vẽ Use Case của buổi 4 |
+| **Claude** | Soạn API contract: 6 endpoint, JSON mẫu, mã HTTP, bảng validation | `docs/api-contract.md` | Đối chiếu từng endpoint với FR, US trong `docs/srs.md` và quy tắc QT-07, QT-08, QT-14, QT-15 |
+| **Claude** | Vẽ sơ đồ kiến trúc phân lớp; soạn câu lập luận lựa chọn kiến trúc gắn NFR | `docs/architecture.drawio`, `docs/design.md` mục 1 | Mở file bằng app.diagrams.net; đối chiếu nguyên tắc phụ thuộc một chiều của buổi 5 và NFR1–NFR4 |
+| **Claude** | Thiết kế ERD 6 bảng, index; viết SQL DDL skeleton | `docs/erd.drawio`, `db/schema.sql`, `docs/design.md` mục 2 | Tự chạy `db/schema.sql` trên PostgreSQL 16 ở máy cá nhân: tạo được 11 bảng và 6 index, không lỗi; soi lại năm lỗi ERD và checklist A4 tài liệu tự học buổi 5 |
+| **Claude** | Vẽ wireframe 3 màn hình; lập bảng đối chiếu trường trên màn hình với cột trong ERD | `docs/wireframes.drawio`, `docs/wireframe.png`, `docs/design.md` mục 3 | Mở file bằng app.diagrams.net; đối chiếu từng trường với ERD và luồng ngoại lệ của UC3, UC6 |
+| **Claude** | Hướng dẫn cài Node.js, Git, PostgreSQL; mã mẫu smoke test `/health`; dựng cấu trúc repo, `.gitignore`, `.env.example`, README | `src/index.js`, `README.md`, `.gitignore`, `.env.example`, `package.json` | Tự cài và chạy lệnh kiểm tra phiên bản; tự chạy smoke test, `/health` trả về `{"status":"ok"}`; tự chạy `git status` trước khi commit |
+| **Claude** | Gộp và định dạng báo cáo PDF; giải thích đáp án quiz buổi 3 | `BT1_2374802010577_TranQuocVuong.pdf`; quiz buổi 3 | Đọc lại toàn bộ báo cáo trước khi nộp; đối chiếu đáp án quiz với tài liệu buổi 3 |
+| *--- không dùng ---* | *Các phần tự thực hiện* | Tạo tài khoản và repo GitHub, chạy PlantUML và xuất ảnh, chạy DDL trên máy cá nhân, commit và push | Tự thực hiện trên máy cá nhân |
 
 *Ghi chú:*
 - Nếu ở bài nộp này sinh viên **hoàn toàn không sử dụng bất kỳ công cụ AI nào**, hãy ghi rõ `Không sử dụng công cụ AI` vào bảng.
@@ -44,4 +39,4 @@
 > **"Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp."**
 
 * **Chữ ký / Họ tên sinh viên:** Trần Quốc Vương  
-* **Ngày khai báo:** 07/10/2026
+* **Ngày khai báo:** 10/10/2026

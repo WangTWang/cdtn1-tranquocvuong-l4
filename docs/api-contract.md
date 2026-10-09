@@ -26,7 +26,7 @@
 {
   "error": {
     "code": "TICKET_ALREADY_ASSIGNED",
-    "message": "Phiếu đã được phân công cho kỹ thuật viên khác",
+    "message": "Phiếu đã được phân công cho Phạm Minh Khôi",
     "details": []
   }
 }
@@ -58,7 +58,7 @@
 | E5 | GET | `/api/technicians/me/tickets` | Kỹ thuật viên xem phiếu được gán | KY_THUAT_VIEN | US5 | FR6 |
 | E6 | POST | `/api/tickets/{ticketId}/appointments` | Đặt lịch hẹn giao – nhận máy | TIEP_NHAN | US6 | FR7, FR8 |
 
-E1, E2, E3 phục vụ các story MUST. E4, E5, E6 phục vụ các story SHOULD. Các story COULD (US7, US8) chưa có endpoint ở phiên bản này.
+E1, E2, E3 phục vụ các story MUST. E4, E5, E6 phục vụ các story SHOULD. Story COULD (US7) chưa có endpoint ở phiên bản này.
 
 ---
 
@@ -361,7 +361,7 @@ Tạo lịch hẹn giao hoặc nhận máy cho phiếu đã có kỹ thuật vi�
 | E4 | `reason` | Có | chuỗi | 5–255 ký tự, không chỉ gồm khoảng trắng (QT-07) | 400 |
 | E6 | `type` | Có | chuỗi | `GIAO` hoặc `NHAN` | 400 |
 | E6 | `startAt` | Có | thời gian ISO 8601 | Không ở quá khứ; không rơi vào Chủ nhật (RB-03) | 400 |
-| E6 | `endAt` | Có | thời gian ISO 8601 | Sau `startAt`; cùng ngày với `startAt` | 400 |
+| E6 | `endAt` | Có | thời gian ISO 8601 | Sau `startAt`; cùng ngày với `startAt` (RB-03) | 400 |
 | E6 | `note` | Không | chuỗi | Tối đa 255 ký tự | 400 |
 
 ---
