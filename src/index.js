@@ -1,10 +1,13 @@
-const express = require('express');
-const app = express();
+require('dotenv').config({ quiet: true });
+const { createApp } = require('./app');
+const services = require('./container');
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+if (!process.env.JWT_SECRET) {
+  console.error('Thiếu JWT_SECRET trong file .env (xem .env.example)');
+  process.exit(1);
+}
 
-app.listen(3000, () => {
-  console.log('Server chay tai http://localhost:3000/health');
+const port = Number(process.env.PORT || 3000);
+createApp(services).listen(port, () => {
+  console.log(`API chạy tại http://localhost:${port} (kiểm tra: /health)`);
 });
