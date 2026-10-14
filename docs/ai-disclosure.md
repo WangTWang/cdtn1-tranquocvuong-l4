@@ -40,3 +40,14 @@
 
 * **Chữ ký / Họ tên sinh viên:** Trần Quốc Vương  
 * **Ngày khai báo:** 10/10/2026
+
+---
+
+### IV. KHAI BÁO CHO BÀI TẬP 2 (cập nhật theo từng sprint, nộp cùng tag v0.2)
+
+| Công cụ AI | Dùng vào việc gì | Áp dụng ở phần nào (File / Mục) | Đã kiểm chứng & Chỉnh sửa thế nào |
+| :--- | :--- | :--- | :--- |
+| **Claude** | Sprint 1 (buổi 8): dựng cấu trúc 3 lớp routes / services / repositories; viết migration, seed, script tạo token | `src/`, `db/migrations/`, `db/seeds/`, `scripts/`, `package.json` | Tự chạy `npm run db:migrate` và `npm run db:seed` hai lần trên PostgreSQL 16 ở máy cá nhân: lần hai không lỗi, số dòng không đổi |
+| **Claude** | Viết CRUD kỹ thuật viên và lịch hẹn, quy tắc RB-02 (trùng lịch), RB-03 (thời gian hợp lệ), QT-13, QT-14 | `src/services/*.service.js`, `src/validators/` | Tự gọi thử từng endpoint bằng curl theo README; đối chiếu mã lỗi với `docs/api-contract.md` |
+| **Claude** | Viết 14 unit test lớp service và validator dùng repository giả | `tests/` | Tự chạy `npm test`: 14/14 PASS; đọc từng test và đối chiếu với tiêu chí chấp nhận trong `docs/srs.md` |
+| **Claude** | Cập nhật README, ghi chú thay đổi thiết kế | `README.md`, `docs/thay-doi-thiet-ke.md` | Làm phép thử "thư mục trống": clone repo sang thư mục mới và chạy đúng theo README |
