@@ -99,7 +99,7 @@
 | Mã | Loại | Yêu cầu |
 |---|---|---|
 | NFR1 | Hiệu năng | Danh sách phiếu chờ phân công và danh sách gợi ý kỹ thuật viên hiển thị dưới 2 giây với 10.000 phiếu và 38 kỹ thuật viên, trên máy 8 GB RAM. |
-| NFR2 | Bảo mật | Kỹ thuật viên và nhân viên tiếp nhận chỉ thấy phiếu của trung tâm mình; số điện thoại khách hiển thị dạng che (090****567) với mọi vai trò trừ quản lý. |
+| NFR2 | Bảo mật | 100% yêu cầu xem hoặc sửa dữ liệu của trung tâm khác bị từ chối với mã 403; 100% phản hồi trả cho vai trò không phải quản lý có số điện thoại khách ở dạng che (090****567). Đo bằng bộ test phân quyền trong `tests/`. |
 | NFR3 | Tin cậy | Phân công và đổi kỹ thuật viên chạy trong một transaction; khi 2 quản lý gán cùng một phiếu đồng thời, đúng 1 lệnh thành công và không phiếu nào có 2 kỹ thuật viên. |
 | NFR4 | Khả dụng | Quản lý hoàn tất phân công một phiếu trong không quá 3 lần bấm và dưới 1 phút. |
 

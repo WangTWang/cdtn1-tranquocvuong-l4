@@ -38,7 +38,7 @@
 
 > **"Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp."**
 
-* **Chữ ký / Họ tên sinh viên:** Trần Quốc Vương  
+* **Chữ ký / Họ tên sinh viên:** Trần Quốc Vương – MSSV 2374802010577  
 * **Ngày khai báo:** 10/10/2026
 
 ---
