@@ -88,5 +88,6 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - [x] API contract, 7 User Story, file Use Case draw.io (buổi 4)
 - [x] Kiến trúc, ERD + DDL, wireframe – hoàn tất Bài tập 1 (buổi 5–6)
 - [x] Sprint 1 (buổi 8): migration + seed, CRUD kỹ thuật viên và lịch hẹn, RB-02, RB-03, 14 unit test
+- [x] Buổi 8: đọc phản hồi BT1 (9.5/10), ghi quyết định điều chỉnh vào `docs/thay-doi-thiet-ke.md` (TD-01 → TD-03); kết quả gọi thử API lưu ở `docs/ket-qua-goi-api-buoi8.md`
 - [ ] Sprint 2: danh sách phiếu chờ phân công (E1), gợi ý kỹ thuật viên (E2), phân công / đổi kỹ thuật viên (E3, E4)
 - [ ] Màn hình React gọi API (3 màn hình theo wireframe), tag `v0.2` (hạn cuối buổi 12)
