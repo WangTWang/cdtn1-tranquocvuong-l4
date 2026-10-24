@@ -23,3 +23,36 @@ function fakeAppointmentDeps({ ticket, appointments = [] } = {}) {
 }
 
 module.exports = { vn, fakeAppointmentDeps };
+
+// ---- Sprint 2: phan cong / doi ky thuat vien ----
+function fakeAssignmentDeps({ ticket, technicians = {}, skills = {}, candidates = [], list = [] } = {}) {
+  const state = { ticket: ticket ? { ...ticket } : null, statusLogs: [], assignmentLogs: [] };
+  const ticketRepo = {
+    findById: jest.fn(async (id) => (state.ticket && state.ticket.ticketId === id ? { ...state.ticket } : null)),
+    findByIdForUpdate: jest.fn(async (id) => (state.ticket && state.ticket.ticketId === id ? { ...state.ticket } : null)),
+    listByCenterAndStatus: jest.fn(async () => ({ items: list, total: list.length })),
+    listByTechnician: jest.fn(async () => list),
+    assign: jest.fn(async (id, techId) => {
+      Object.assign(state.ticket, { technicianId: techId, technicianName: technicians[techId].fullName, status: 'DA_PHAN_CONG' });
+      return true;
+    }),
+    reassign: jest.fn(async (id, techId) => {
+      Object.assign(state.ticket, { technicianId: techId, technicianName: technicians[techId].fullName });
+      return true;
+    }),
+  };
+  const technicianRepo = {
+    findById: jest.fn(async (id) => (technicians[id] ? { ...technicians[id] } : null)),
+    findSkills: jest.fn(async (id) => skills[id] || []),
+    findByEmployeeId: jest.fn(async (employeeId) => Object.values(technicians).find((t) => t.employeeId === employeeId) || null),
+    listCandidates: jest.fn(async () => candidates),
+  };
+  const logRepo = {
+    addStatusLog: jest.fn(async (x) => { state.statusLogs.push(x); }),
+    addAssignmentLog: jest.fn(async (x) => { state.assignmentLogs.push(x); }),
+  };
+  const withTransaction = jest.fn(async (fn) => fn({ fake: 'db' }));
+  return { ticketRepo, technicianRepo, logRepo, withTransaction, state };
+}
+
+module.exports.fakeAssignmentDeps = fakeAssignmentDeps;

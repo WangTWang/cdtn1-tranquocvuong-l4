@@ -23,3 +23,30 @@ test('TC-14: tay nghề ngoài khoảng 1–5 và level sai bị từ chối', (
   expect(() => validateCreateTechnician({ employeeId: 6, level: 'GIOI', skills: [{ categoryId: 1, proficiency: 6 }] }))
     .toThrow('level, skills[0].proficiency');
 });
+
+// ---- Sprint 2 ----
+const { validateListQuery, validateAssign, validateReassign } = require('../../src/validators/ticket.validator');
+const { validateLogin } = require('../../src/validators/auth.validator');
+
+describe('Validator Sprint 2', () => {
+  test('TC-33: danh sách phiếu – status bắt buộc đúng giá trị, page và pageSize có mặc định và giới hạn 1–100', () => {
+    expect(validateListQuery({ status: 'MOI' })).toEqual({ status: 'MOI', page: 1, pageSize: 20 });
+    expect(() => validateListQuery({ status: 'HOAN_TAT' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
+    expect(validateListQuery({ status: 'MOI', pageSize: '100' }).pageSize).toBe(100);
+    expect(() => validateListQuery({ status: 'MOI', pageSize: '101' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
+    expect(() => validateListQuery({ status: 'MOI', page: '0' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
+  });
+
+  test('TC-34: phân công và đổi kỹ thuật viên – thiếu technicianId, lý do dưới 5 ký tự đều báo đúng tên trường', () => {
+    expect(() => validateAssign({})).toThrow(expect.objectContaining({ details: [{ field: 'technicianId', issue: expect.any(String) }] }));
+    expect(validateAssign({ technicianId: '7' })).toEqual({ technicianId: 7 });
+    const err = (() => { try { validateReassign({ technicianId: 'x', reason: ' ab ' }); } catch (e) { return e; } return null; })();
+    expect(err.details.map((d) => d.field)).toEqual(['technicianId', 'reason']);
+    expect(validateReassign({ technicianId: 2, reason: '  Nghỉ phép  ' })).toEqual({ technicianId: 2, reason: 'Nghỉ phép' });
+  });
+
+  test('TC-35: đăng nhập – thiếu tên hoặc mật khẩu bị từ chối ở tầng 1', () => {
+    expect(() => validateLogin({ username: '  ', password: '' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
+    expect(validateLogin({ username: ' tram ', password: 'x' })).toEqual({ username: 'tram', password: 'x' });
+  });
+});
