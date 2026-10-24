@@ -123,5 +123,5 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - [x] Buổi 10: luồng chính chạy end-to-end cục bộ qua API (đăng nhập → danh sách → gợi ý → phân công → đặt lịch → phiếu của tôi) – kết quả ở `docs/ket-qua-buoi10.md`
 - [ ] Ảnh chụp giao diện chạy trên máy cá nhân lưu vào `docs/img/`
 - [x] Dữ liệu mẫu Mekong Mobile theo quy mô case study: 6 trung tâm, 38 kỹ thuật viên, 381 khách hàng, 154 phiếu (TD-16)
-- [ ] Phép thử "thư mục trống": clone repo sang thư mục mới, chạy đúng mục 3
+- [x] Phép thử "thư mục trống": clone repo sang thư mục mới, chạy đúng mục 3 – kết quả ở `docs/kiem-thu-thu-muc-trong.md`
 - [ ] Rà soát, sửa lỗi theo buổi 11; báo cáo BT2 kèm đủ DDL 6 bảng (TD-02); tag `v0.2` (hạn cuối buổi 12)
