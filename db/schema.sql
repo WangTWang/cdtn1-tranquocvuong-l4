@@ -169,3 +169,11 @@ CREATE INDEX idx_status_log_ticket ON ticket_status_log (ticket_id, changed_at);
 
 -- FR5 + QT-07: truy vet cac lan doi ky thuat vien cua mot phieu
 CREATE INDEX idx_assign_log_ticket ON ticket_assignment_log (ticket_id, changed_at);
+
+-- ---------------------------------------------------------------------
+-- CAP NHAT SPRINT 2 (TD-09): tai khoan dang nhap - xem db/migrations/002_auth.sql
+-- 6 bang cot loi KHONG doi; chi bang phu tro employee them 2 cot.
+-- ---------------------------------------------------------------------
+ALTER TABLE employee ADD COLUMN IF NOT EXISTS username      VARCHAR(40);
+ALTER TABLE employee ADD COLUMN IF NOT EXISTS password_hash VARCHAR(200);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_employee_username ON employee (username);

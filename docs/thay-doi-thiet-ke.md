@@ -62,3 +62,53 @@ File được nối tiếp ở BT2, BT3 (tiêu chí 3 của rubric: Nhất quán
 - **Quyết định:** Đọc lịch hẹn của kỹ thuật viên trong ngày rồi so sánh trong service, sau khi khóa dòng kỹ thuật viên (`SELECT … FOR UPDATE`) trong cùng transaction. Lịch bắt đầu đúng lúc lịch khác kết thúc KHÔNG bị coi là trùng.
 - **Lý do:** Giữ quy tắc nghiệp vụ ở lớp service, không giấu trong câu SQL; khóa để hai lịch đặt cùng lúc không lọt qua.
 - **Ảnh hưởng:** Làm rõ giá trị biên của RB-02 trong `docs/srs.md`.
+
+## 3. Thay đổi khi hiện thực Sprint 2 (buổi 10)
+
+### TD-09 Thêm tài khoản đăng nhập cho nhân viên
+- **Nguồn:** Buổi 10 yêu cầu frontend có xác thực đăng nhập; API contract BT1 ghi "cơ chế đăng nhập hoàn thiện ở BT2".
+- **Quyết định:** BỔ SUNG cột `employee.username` (duy nhất) và `employee.password_hash` bằng migration mới `db/migrations/002_auth.sql`; thêm `POST /api/auth/login` trả JWT. Mật khẩu băm bằng scrypt có sẵn của Node, không lưu mật khẩu gốc.
+- **Lý do:** Không sửa `001_init.sql` vì máy đã chạy file đó (bảng `schema_migrations` sẽ bỏ qua). Dùng scrypt thay vì bcrypt để không phải biên dịch thư viện native trên Windows. Sai tên và sai mật khẩu trả cùng một thông báo để không lộ tài khoản nào tồn tại.
+- **Ảnh hưởng:** 6 bảng cốt lõi không đổi; bảng phụ trợ `employee` thêm 2 cột – đã cập nhật ô ghi chú bảng phụ trợ trong `docs/erd.drawio` / `erd.png`, `docs/design.md` mục 2 và cuối `db/schema.sql`; seed `002_accounts.sql` gán tên đăng nhập cho 7 nhân viên mẫu, mật khẩu mẫu lấy từ `DEMO_PASSWORD` trong `.env`. `npm run token` vẫn dùng được để thử API bằng curl.
+
+### TD-10 Định dạng danh sách trả về
+- **Nguồn:** API contract BT1 ghi E1, E5 trả `items`, `page` ở cấp ngoài cùng, trong khi TD-06 đã chốt mọi phản hồi thành công bọc trong `{ data }`.
+- **Quyết định:** Thống nhất một kiểu: `{ "data": { "items": [...], "page", "pageSize", "total" } }`. E2 trả `{ "data": { ticketId, ticketCode, category, suggestions } }`.
+- **Lý do:** Frontend chỉ có MỘT chỗ đọc phản hồi (`web/src/api/client.js`), không phải rẽ nhánh theo từng endpoint.
+- **Ảnh hưởng:** Cập nhật `docs/api-contract.md` mục 6.
+
+### TD-11 Mở rộng E1 và thêm xem một phiếu
+- **Nguồn:** Wireframe 3 (đặt lịch hẹn) cần nhân viên tiếp nhận chọn được phiếu đã phân công; Wireframe 2 cần thông tin một phiếu.
+- **Quyết định:** E1 nhận `status=MOI` (chỉ QUAN_LY) hoặc `status=DA_PHAN_CONG` (QUAN_LY và TIEP_NHAN). Thêm `GET /api/tickets/{ticketId}` cho mọi vai trò cùng trung tâm.
+- **Lý do:** Không có hai endpoint này thì màn hình đặt lịch và màn hình phân công không hiện được thông tin phiếu.
+- **Ảnh hưởng:** Số điện thoại vẫn che theo QT-15 với vai trò không phải quản lý; QT-14 kiểm ở service.
+
+### TD-12 Gợi ý kỹ thuật viên dùng cả khi đổi người
+- **Nguồn:** Màn hình đổi kỹ thuật viên (UC4) cần danh sách người đủ điều kiện QT-08.
+- **Quyết định:** E2 nhận thêm phiếu ĐÃ PHÂN CÔNG và bỏ người đang giữ phiếu ra khỏi danh sách; phiếu ở trạng thái khác vẫn trả 409 `TICKET_NOT_ASSIGNABLE`.
+- **Lý do:** Dùng lại đúng một quy tắc lọc và xếp hạng (`rankSuggestions`) cho cả phân công và đổi người.
+- **Ảnh hưởng:** Thêm test TC-21b.
+
+### TD-13 Hợp đồng dữ liệu phiếu ở ranh giới service → trình bày
+- **Nguồn:** Buổi 9, phần 1 (phụ thuộc ngầm, hàm chuyển đổi ở ranh giới).
+- **Quyết định:** Mọi phiếu trả ra ngoài đều đi qua `src/contracts/ticket.contract.js` (`toTicketView`); che số điện thoại (QT-15) chỉ làm ở hàm này. Test hợp đồng TC-26 → TC-29.
+- **Lý do:** Đổi tên cột trong CSDL chỉ sửa một chỗ; không thể quên che số ở một màn hình nào đó.
+- **Ảnh hưởng:** Lớp trình bày (routes, React) không đọc tên cột của bảng.
+
+### TD-14 Giao diện React chạy chung cổng với API
+- **Nguồn:** Buổi 10 – frontend ≥ 3 màn hình kết nối API thật.
+- **Quyết định:** Frontend React + Vite trong thư mục `web/`, theo đúng 3 wireframe BT1 và thêm màn hình đăng nhập, màn hình "Phiếu của tôi". Sau `npm run web:build`, Express phục vụ luôn `web/dist` ở cổng 3000.
+- **Lý do:** Chạy một lệnh `npm start` là dùng được, không gặp lỗi CORS giữa hai cổng.
+- **Ảnh hưởng:** `src/app.js` thêm phần phục vụ file tĩnh; khi phát triển vẫn chạy được `npm run web:dev` (cổng 5173, chuyển tiếp `/api`).
+
+### TD-15 Test đồng thời chạy riêng trên PostgreSQL thật
+- **Nguồn:** Gợi ý của GV sau BT1 – test 2 lệnh phân công đồng thời (NFR3).
+- **Quyết định:** Phân công khóa dòng phiếu (`SELECT … FOR UPDATE`) rồi đọc lại trạng thái trong cùng transaction, cộng thêm `UPDATE … WHERE status = 'MOI'`. Test TC-40 → TC-43 trong `tests/db/`, chạy bằng `npm run test:db`.
+- **Lý do:** Test đồng thời phải chạy trên CSDL thật mới có ý nghĩa; tách riêng để `npm test` vẫn chạy được khi không có PostgreSQL.
+- **Ảnh hưởng:** Thêm `jest.db.config.js`.
+
+### TD-16 Dữ liệu mẫu theo quy mô case study
+- **Nguồn:** Thông báo buổi 10 – luồng chính chạy end-to-end trên bộ dữ liệu mẫu Mekong Mobile; seed tự soạn ở buổi 8 chỉ có 2 trung tâm, 4 phiếu.
+- **Quyết định:** BỔ SUNG `db/seeds/003_mekong_mau.sql`, sinh tự động bằng `scripts/gen-seed-mekong.js` từ `data/mau/customers_raw.csv` (dữ liệu mẫu Mekong Mobile trong repo mẫu của giảng viên): chuẩn hóa số điện thoại theo QT-02, loại bản ghi hỏng và khách trùng (402 → 378 khách). Quy mô theo case study: 6 trung tâm, 38 kỹ thuật viên, 150 phiếu mới; phiếu đã phân công luôn có kỹ thuật viên cùng trung tâm, tay nghề ≥ 3 (QT-08), kèm lịch sử trạng thái và lịch sử phân công.
+- **Lý do:** Danh sách, phân trang, gợi ý kỹ thuật viên chỉ kiểm tra được thật khi có đủ dữ liệu. Giữ nguyên seed 001 (ID 1–7) để các ví dụ trong README và test không đổi. Thời điểm tiếp nhận tính lùi từ `now()` lúc nạp nên luôn có phiếu sắp hạn và quá hạn.
+- **Ảnh hưởng:** Không đổi lược đồ. Thêm `npm run db:create` (tạo CSDL không cần lệnh psql), `npm run db:gen-seed`, test TC-44 → TC-46 cho hàm chuẩn hóa. Dữ liệu mẫu bỏ qua quy tắc "không tính Chủ nhật" khi tính hạn cam kết (việc tạo phiếu thuộc luồng L2).

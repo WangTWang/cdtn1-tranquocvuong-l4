@@ -378,3 +378,22 @@ Tạo lịch hẹn giao hoặc nhận máy cho phiếu đã có kỹ thuật vi�
 | E6 | US6 | FR7, FR8 | UC6, UC7 | SHOULD |
 
 *Ghi chú: tên khách hàng, kỹ thuật viên và mã phiếu trong các ví dụ JSON là dữ liệu minh họa theo định dạng của case study (mã phiếu `BH-000123/2026`, nhóm sự cố, mức ưu tiên, bậc tay nghề), không phải dữ liệu thật.*
+
+---
+
+## 6. Cập nhật khi hiện thực Sprint 2 (buổi 10)
+
+Chi tiết lý do ở `docs/thay-doi-thiet-ke.md` (TD-09 → TD-13).
+
+| # | Phương thức · Đường dẫn | Vai trò | Thay đổi |
+|---|---|---|---|
+| E0 | `POST /api/auth/login` | không cần token | MỚI. Body `{ "username", "password" }` → `{ "data": { "token", "user": { employeeId, fullName, role, centerId } } }`. Sai tên hoặc mật khẩu → 401 `INVALID_CREDENTIALS` (cùng một thông báo) |
+| E1 | `GET /api/tickets?status=MOI\|DA_PHAN_CONG&page&pageSize` | QUAN_LY (cả hai), TIEP_NHAN (chỉ `DA_PHAN_CONG`) | Thêm `DA_PHAN_CONG`; trả `{ "data": { items, page, pageSize, total } }` |
+| — | `GET /api/tickets/{ticketId}` | mọi vai trò, cùng trung tâm | MỚI. Trả một phiếu theo hợp đồng `toTicketView` |
+| E2 | `GET /api/tickets/{ticketId}/technician-suggestions` | QUAN_LY | Nhận cả phiếu `DA_PHAN_CONG` (để đổi người), bỏ người đang giữ phiếu; trả trong `{ data }` |
+| E3, E4 | `POST`, `PUT /api/tickets/{ticketId}/assignment` | QUAN_LY | Như mục 3, bọc trong `{ data }` |
+| E5 | `GET /api/technicians/me/tickets` | KY_THUAT_VIEN | Trả `{ "data": { items, total } }` |
+
+**Hình dạng một phiếu (hợp đồng `src/contracts/ticket.contract.js`):** `ticketId`, `ticketCode`, `customerName`, `customerPhone` (đầy đủ với QUAN_LY, dạng che `090****567` với vai trò khác), `deviceName`, `category` (hoặc `null` nếu chưa phân loại), `priority`, `status`, `receivedAt`, `dueDate` (ISO 8601 +07:00), `technician` (`{ technicianId, fullName }` hoặc `null` nếu chưa phân công), `isOverdue` (quá hạn và phiếu chưa đóng).
+
+**Mã lỗi thêm ở Sprint 2:** `INVALID_CREDENTIALS` (401), `TICKET_NOT_CATEGORIZED` (409, phiếu chưa có nhóm sự cố), `TICKET_CANCELLED` (409).

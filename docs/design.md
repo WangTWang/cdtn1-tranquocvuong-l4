@@ -79,7 +79,7 @@ ERD dùng ký pháp chân chim, gồm 6 bảng cốt lõi của luồng L4. Các
 
 Kiểm ngược lại: FR1–FR9 đều có ít nhất một bảng phục vụ; không có bảng nào không gắn với yêu cầu.
 
-**Bảng phụ trợ dùng chung** (mức tối thiểu, không tính vào 6 bảng cốt lõi): `employee`, `service_center`, `issue_category`, `customer`, `device`. Các bảng `customer`, `device` và việc tạo `ticket` thuộc luồng L2; luồng L4 chỉ đọc.
+**Bảng phụ trợ dùng chung** (mức tối thiểu, không tính vào 6 bảng cốt lõi): `employee`, `service_center`, `issue_category`, `customer`, `device`. *Cập nhật Sprint 2 (TD-09): `employee` thêm `username` (duy nhất) và `password_hash` để đăng nhập, bằng migration `db/migrations/002_auth.sql`; 6 bảng cốt lõi không đổi.* Các bảng `customer`, `device` và việc tạo `ticket` thuộc luồng L2; luồng L4 chỉ đọc.
 
 ### 2.3. Quan hệ
 
