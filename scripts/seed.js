@@ -1,7 +1,10 @@
-// Nap du lieu mau db/seeds/*.sql. Moi file dung ON CONFLICT DO NOTHING nen chay lai KHONG nhan doi.
+// Nap du lieu mau db/seeds/*.sql. Moi file dung ON CONFLICT DO NOTHING / chi gan khi con trong nen chay lai KHONG nhan doi.
+// Sau do dat mat khau demo (bien DEMO_PASSWORD trong .env) cho tai khoan chua co mat khau.
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('../src/config/db');
+const employeeRepo = require('../src/repositories/employee.repository');
+const { hashPassword } = require('../src/utils/password');
 
 const COUNT_TABLES = ['service_center', 'employee', 'technician', 'technician_skill', 'customer',
   'device', 'ticket', 'appointment'];
@@ -11,6 +14,13 @@ async function main() {
   for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort()) {
     await pool.query(fs.readFileSync(path.join(dir, file), 'utf8'));
     console.log(`+ Đã nạp ${file}`);
+  }
+  const pending = await employeeRepo.listWithoutPassword();
+  if (pending.length > 0) {
+    const demo = process.env.DEMO_PASSWORD;
+    if (!demo) throw new Error('Thiếu DEMO_PASSWORD trong .env (xem .env.example) để đặt mật khẩu cho tài khoản mẫu');
+    for (const id of pending) await employeeRepo.setPasswordHashIfEmpty(id, hashPassword(demo));
+    console.log(`+ Đã đặt mật khẩu mẫu cho ${pending.length} tài khoản`);
   }
   for (const t of COUNT_TABLES) {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM ${t}`);
