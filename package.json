@@ -6,10 +6,17 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
+    "db:create": "node scripts/create-db.js",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
+    "db:gen-seed": "node scripts/gen-seed-mekong.js",
     "token": "node scripts/token.js",
-    "test": "jest"
+    "test": "jest",
+    "test:db": "jest --runInBand --config jest.db.config.js",
+    "db:reset": "node scripts/reset.js",
+    "web:install": "npm install --prefix web",
+    "web:build": "npm run build --prefix web",
+    "web:dev": "npm run dev --prefix web"
   },
   "license": "ISC",
   "type": "commonjs",
@@ -26,6 +33,10 @@
     "jest": "^30.2.0"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/db/"
+    ]
   }
 }

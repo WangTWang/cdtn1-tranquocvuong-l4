@@ -72,4 +72,25 @@ async function lockById(technicianId, db) {
   await db.query('SELECT technician_id FROM technician WHERE technician_id = $1 FOR UPDATE', [technicianId]);
 }
 
-module.exports = { findById, findByEmployeeId, listByCenter, create, update, findSkills, replaceSkills, lockById };
+// Ung vien cho mot nhom su co: moi ky thuat vien DANG LAM VIEC cua trung tam, kem tay nghe voi nhom do
+// (null neu chua co) va so phieu dang giu. Viec loc tay nghe >= 3 va xep thu tu (QT-08) do service lam.
+async function listCandidates(centerId, categoryId, db = pool) {
+  const { rows } = await db.query(
+    `SELECT t.technician_id, e.full_name, t.level, s.proficiency,
+            (SELECT COUNT(*)::int FROM ticket tk
+              WHERE tk.technician_id = t.technician_id
+                AND tk.status IN ('DA_PHAN_CONG', 'DANG_XU_LY', 'CHO_LINH_KIEN')) AS open_ticket_count
+       FROM technician t
+       JOIN employee e ON e.employee_id = t.employee_id
+       LEFT JOIN technician_skill s ON s.technician_id = t.technician_id AND s.category_id = $2
+      WHERE t.center_id = $1 AND t.is_active`, [centerId, categoryId]);
+  return rows.map((r) => ({
+    technicianId: Number(r.technician_id),
+    fullName: r.full_name,
+    level: r.level,
+    proficiency: r.proficiency,
+    openTicketCount: r.open_ticket_count,
+  }));
+}
+
+module.exports = { listCandidates, findById, findByEmployeeId, listByCenter, create, update, findSkills, replaceSkills, lockById };
