@@ -6,3 +6,5 @@ build/
 coverage/
 .idea/
 .vscode/settings.json
+web/node_modules/
+web/dist/
