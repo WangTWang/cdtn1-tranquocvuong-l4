@@ -1,6 +1,9 @@
 const AppError = require('../errors/AppError');
+const { DataAccessError } = require('../errors/DataAccessError');
+const { logger: defaultLogger } = require('../utils/logger');
 
 // Bang dich ma loi nghiep vu -> ma HTTP (theo docs/api-contract.md muc 1).
+// Day la noi DUY NHAT biet anh xa loi -> HTTP; service chi nem ma loi.
 const HTTP_STATUS = {
   VALIDATION_ERROR: 400,
   UNAUTHORIZED: 401,
@@ -24,24 +27,36 @@ const HTTP_STATUS = {
   SAME_TECHNICIAN: 400,
 };
 
-// eslint-disable-next-line no-unused-vars
-function errorHandler(err, req, res, next) {
-  if (err instanceof AppError) {
-    return res.status(HTTP_STATUS[err.code] || 400).json({
-      error: { code: err.code, message: err.message, details: err.details },
+// Ghi log DUNG MOT LAN o day: loi nghiep vu -> khong ghi ERROR (la nghiep vu binh thuong, dong log "request"
+// da co ma trang thai); loi he thong -> ERROR kem requestId va ngan xep. Nguoi dung chi thay ma tra cuu.
+function createErrorHandler({ logger = defaultLogger } = {}) {
+  // eslint-disable-next-line no-unused-vars
+  return function errorHandler(err, req, res, next) {
+    if (err instanceof AppError) {
+      return res.status(HTTP_STATUS[err.code] || 400).json({
+        error: { code: err.code, message: err.message, details: err.details },
+      });
+    }
+    // JSON gui len sai cu phap
+    if (err.type === 'entity.parse.failed') {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Body không phải JSON hợp lệ', details: [] },
+      });
+    }
+    const requestId = req.requestId || '-';
+    const unavailable = err instanceof DataAccessError;
+    logger.error(unavailable ? 'khong truy cap duoc CSDL' : 'loi he thong', {
+      requestId, method: req.method, path: req.path, err,
     });
-  }
-  // JSON gui len sai cu phap
-  if (err.type === 'entity.parse.failed') {
-    return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: 'Body không phải JSON hợp lệ', details: [] },
+    return res.status(unavailable ? 503 : 500).json({
+      error: {
+        code: unavailable ? 'SERVICE_UNAVAILABLE' : 'INTERNAL_ERROR',
+        message: `${unavailable ? 'Hệ thống tạm thời không truy cập được dữ liệu' : 'Hệ thống đang gặp sự cố'}. Vui lòng thử lại sau ít phút. Mã tra cứu: ${requestId}`,
+        details: [{ requestId }],
+      },
     });
-  }
-  // Loi he thong: GHI LOG day du, tra thong bao chung, khong lo chi tiet ky thuat.
-  console.error('[LOI HE THONG]', req.method, req.originalUrl, err);
-  return res.status(500).json({
-    error: { code: 'INTERNAL_ERROR', message: 'Lỗi hệ thống, vui lòng thử lại sau', details: [] },
-  });
+  };
 }
 
-module.exports = errorHandler;
+module.exports = createErrorHandler();
+module.exports.createErrorHandler = createErrorHandler;

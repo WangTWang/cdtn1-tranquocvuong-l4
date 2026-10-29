@@ -4,6 +4,7 @@ const path = require('path');
 const express = require('express');
 const { authenticate } = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
+const requestId = require('./middlewares/requestId');
 const authRoutes = require('./routes/auth.routes');
 const technicianRoutes = require('./routes/technician.routes');
 const { ticketRoutes, myTicketsRoutes } = require('./routes/ticket.routes');
@@ -11,11 +12,20 @@ const { ticketAppointmentRoutes, appointmentRoutes } = require('./routes/appoint
 
 const WEB_DIST = path.join(__dirname, '..', 'web', 'dist');
 
-function createApp({ authService, technicianService, appointmentService, assignmentService }, { webDir = WEB_DIST } = {}) {
+function createApp({ authService, technicianService, appointmentService, assignmentService, checkDb = async () => {} }, { webDir = WEB_DIST } = {}) {
   const app = express();
+  app.use(requestId());
   app.use(express.json());
 
-  app.get('/health', (req, res) => res.json({ status: 'ok' }));
+  // /health: API song va CSDL tra loi duoc (dung cho Docker HEALTHCHECK va phep thu thu muc trong).
+  app.get('/health', async (req, res) => {
+    try {
+      await checkDb();
+      res.json({ status: 'ok', db: 'ok' });
+    } catch {
+      res.status(503).json({ status: 'loi', db: 'khong ket noi duoc' });   // chi tiet da co trong log cua pool
+    }
+  });
 
   // Dang nhap phai nam TRUOC authenticate (chua co token luc dang nhap).
   app.use('/api/auth', authRoutes(authService));
