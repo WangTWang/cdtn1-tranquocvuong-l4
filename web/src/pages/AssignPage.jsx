@@ -11,6 +11,7 @@ export default function AssignPage() {
   const ticketId = Number(useParams().ticketId);
   const ticket = useAsync(() => api.getTicket(ticketId), [ticketId]);
   const [done, setDone] = useState(null);
+  // Sau khi phan cong / doi nguoi: tai lai phieu de khung thong tin hien dung trang thai va ky thuat vien moi.
 
   return (
     <section>
@@ -22,7 +23,7 @@ export default function AssignPage() {
             <TicketInfo t={t} />
             {done
               ? <Success done={done} />
-              : <Chooser ticket={t} onDone={setDone} />}
+              : <Chooser ticket={t} onDone={(d) => { setDone(d); ticket.reload(); }} />}
           </>
         )}
       </DataState>
