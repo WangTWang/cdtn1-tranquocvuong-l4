@@ -121,7 +121,8 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - [x] Buổi 10 (Sprint 2): đăng nhập (TD-09), E1–E5, hợp đồng dữ liệu `toTicketView` (TD-13), test phân quyền và test đồng thời
 - [x] Buổi 10: giao diện React 5 màn hình theo 3 wireframe, đủ ba trạng thái đang tải / rỗng / lỗi
 - [x] Buổi 10: luồng chính chạy end-to-end cục bộ qua API (đăng nhập → danh sách → gợi ý → phân công → đặt lịch → phiếu của tôi) – kết quả ở `docs/ket-qua-buoi10.md`
-- [ ] Ảnh chụp giao diện chạy trên máy cá nhân lưu vào `docs/img/`
+- [x] Ảnh chụp giao diện chạy toàn luồng trên máy cá nhân – `docs/anh-chup-buoi10.md` (ảnh trong `docs/img/`)
+- [x] Sửa lỗi: màn hình phân công vẫn hiện trạng thái "Mới" sau khi phân công xong (tải lại phiếu sau khi lưu)
 - [x] Dữ liệu mẫu Mekong Mobile theo quy mô case study: 6 trung tâm, 38 kỹ thuật viên, 381 khách hàng, 154 phiếu (TD-16)
 - [x] Phép thử "thư mục trống": clone repo sang thư mục mới, chạy đúng mục 3 – kết quả ở `docs/kiem-thu-thu-muc-trong.md`
 - [ ] Rà soát, sửa lỗi theo buổi 11; báo cáo BT2 kèm đủ DDL 6 bảng (TD-02); tag `v0.2` (hạn cuối buổi 12)
