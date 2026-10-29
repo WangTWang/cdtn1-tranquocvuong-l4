@@ -14,7 +14,7 @@
     "test": "jest",
     "test:db": "jest --runInBand --config jest.db.config.js",
     "db:reset": "node scripts/reset.js",
-    "web:install": "npm install --prefix web",
+    "web:install": "npm ci --prefix web",
     "web:build": "npm run build --prefix web",
     "web:dev": "npm run dev --prefix web"
   },
@@ -37,6 +37,9 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/tests/db/"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/setup-env.js"
     ]
   }
 }
