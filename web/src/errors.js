@@ -2,7 +2,7 @@
 // KHONG bao gio hien chi tiet ky thuat.
 const HINT = {
   NETWORK: 'Kiểm tra mạng và bảo đảm máy chủ đang chạy, rồi bấm Thử lại. Dữ liệu đã nhập vẫn được giữ.',
-  INTERNAL_ERROR: 'Vui lòng thử lại sau ít phút. Nếu vẫn lỗi, báo cho quản trị hệ thống.',
+  INTERNAL_ERROR: 'Bấm Thử lại sau ít phút. Nếu vẫn lỗi, báo quản trị hệ thống kèm mã tra cứu ở trên.',
   TICKET_ALREADY_ASSIGNED: 'Quay lại danh sách để xem phiếu còn chờ, hoặc dùng "Đổi kỹ thuật viên" nếu cần.',
   TICKET_NOT_CATEGORIZED: 'Cần nhân viên tiếp nhận bổ sung nhóm sự cố cho phiếu trước khi phân công.',
   TECHNICIAN_NOT_ELIGIBLE: 'Chọn kỹ thuật viên trong danh sách gợi ý (cùng trung tâm, tay nghề từ 3 trở lên).',
@@ -16,7 +16,9 @@ const HINT = {
 export function describeError(err) {
   if (err && err.network) return { what: 'Không kết nối được tới hệ thống.', why: '', hint: HINT.NETWORK };
   if (!err || !err.code || err.status >= 500) {
-    return { what: 'Hệ thống đang gặp sự cố.', why: '', hint: HINT.INTERNAL_ERROR };
+    // Server da ghi san "Ma tra cuu: <requestId>" trong message (buoi 11) - hien nguyen de nguoi dung bao lai.
+    const what = err && err.status >= 500 && err.message ? err.message : 'Hệ thống đang gặp sự cố.';
+    return { what, why: '', hint: HINT.INTERNAL_ERROR };
   }
   return { what: err.message, why: '', hint: HINT[err.code] || '' };
 }

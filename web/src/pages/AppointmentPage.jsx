@@ -52,13 +52,28 @@ export default function AppointmentPage() {
   );
 }
 
+// Huy lich: loi (mat ket noi, het phien...) phai HIEN RA cho nguoi dung, khong nuot di (BUG-004).
 function CancelButton({ id, onDone }) {
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
   async function cancel() {
     setBusy(true);
-    try { await api.cancelAppointment(id); } finally { setBusy(false); onDone(); }
+    setError(null);
+    try {
+      await api.cancelAppointment(id);
+      onDone();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
   }
-  return <button type="button" disabled={busy} onClick={cancel}>Hủy lịch</button>;
+  return (
+    <>
+      <button type="button" disabled={busy} onClick={cancel}>{busy ? 'Đang hủy…' : 'Hủy lịch'}</button>
+      {error && <ErrorBox error={error} />}
+    </>
+  );
 }
 
 function Form({ ticketId, onSaved }) {
