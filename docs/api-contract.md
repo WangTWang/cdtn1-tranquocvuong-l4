@@ -397,3 +397,16 @@ Chi tiết lý do ở `docs/thay-doi-thiet-ke.md` (TD-09 → TD-13).
 **Hình dạng một phiếu (hợp đồng `src/contracts/ticket.contract.js`):** `ticketId`, `ticketCode`, `customerName`, `customerPhone` (đầy đủ với QUAN_LY, dạng che `090****567` với vai trò khác), `deviceName`, `category` (hoặc `null` nếu chưa phân loại), `priority`, `status`, `receivedAt`, `dueDate` (ISO 8601 +07:00), `technician` (`{ technicianId, fullName }` hoặc `null` nếu chưa phân công), `isOverdue` (quá hạn và phiếu chưa đóng).
 
 **Mã lỗi thêm ở Sprint 2:** `INVALID_CREDENTIALS` (401), `TICKET_NOT_CATEGORIZED` (409, phiếu chưa có nhóm sự cố), `TICKET_CANCELLED` (409).
+
+---
+
+## 7. Cập nhật sau buổi 11 – lỗi hệ thống và kiểm tra sức khỏe (TD-17)
+
+| Mã HTTP | `error.code` | Khi nào | Phía gọi làm gì |
+|---|---|---|---|
+| 500 | `INTERNAL_ERROR` | Lỗi không lường trước | Hiện thông báo chung kèm mã tra cứu, nút Thử lại |
+| 503 | `SERVICE_UNAVAILABLE` | Không truy cập được CSDL (mất kết nối, CSDL tắt) | Như trên; thử lại sau ít phút |
+
+- Mọi phản hồi có header `X-Request-Id`; với lỗi 5xx, `message` kết thúc bằng "Mã tra cứu: <requestId>" và `details` = `[{ "requestId": "<requestId>" }]`. Chi tiết kỹ thuật (ngăn xếp, mã lỗi pg) chỉ có trong log, không trả cho người dùng.
+- `GET /health` (không cần token): 200 `{ "status": "ok", "db": "ok" }`; 503 `{ "status": "loi", "db": "khong ket noi duoc" }` khi CSDL không trả lời.
+

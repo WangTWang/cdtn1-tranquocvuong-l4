@@ -112,3 +112,18 @@ File được nối tiếp ở BT2, BT3 (tiêu chí 3 của rubric: Nhất quán
 - **Quyết định:** BỔ SUNG `db/seeds/003_mekong_mau.sql`, sinh tự động bằng `scripts/gen-seed-mekong.js` từ `data/mau/customers_raw.csv` (dữ liệu mẫu Mekong Mobile trong repo mẫu của giảng viên): chuẩn hóa số điện thoại theo QT-02, loại bản ghi hỏng và khách trùng (402 → 378 khách). Quy mô theo case study: 6 trung tâm, 38 kỹ thuật viên, 150 phiếu mới; phiếu đã phân công luôn có kỹ thuật viên cùng trung tâm, tay nghề ≥ 3 (QT-08), kèm lịch sử trạng thái và lịch sử phân công.
 - **Lý do:** Danh sách, phân trang, gợi ý kỹ thuật viên chỉ kiểm tra được thật khi có đủ dữ liệu. Giữ nguyên seed 001 (ID 1–7) để các ví dụ trong README và test không đổi. Thời điểm tiếp nhận tính lùi từ `now()` lúc nạp nên luôn có phiếu sắp hạn và quá hạn.
 - **Ảnh hưởng:** Không đổi lược đồ. Thêm `npm run db:create` (tạo CSDL không cần lệnh psql), `npm run db:gen-seed`, test TC-44 → TC-46 cho hàm chuẩn hóa. Dữ liệu mẫu bỏ qua quy tắc "không tính Chủ nhật" khi tính hạn cam kết (việc tạo phiếu thuộc luồng L2).
+
+## 4. Thay đổi sau buổi 11 (chuẩn bị nộp Bài tập 2)
+
+### TD-17 Log có cấu trúc và lỗi hệ thống kèm mã tra cứu
+- **Nguồn:** Buổi 11, phần 3 (logging và xử lý lỗi xuyên lớp); rà soát mã theo phép thử grep của buổi 11.
+- **Quyết định:** SỬA. Thêm `src/utils/logger.js` (log JSON ra stdout, mức theo `LOG_LEVEL`, tự che mật khẩu, token, số điện thoại) và middleware `requestId` (header `X-Request-Id`). Lớp dữ liệu (`src/config/db.js`) dịch lỗi kết nối của pg thành `DataAccessError`; middleware lỗi là nơi DUY NHẤT ghi log lỗi và trả 503 (mất CSDL) hoặc 500 (lỗi khác) kèm "Mã tra cứu". `/health` kiểm thêm CSDL.
+- **Lý do:** Trước đó lỗi hệ thống được in nguyên đối tượng lỗi ra console (có thể chứa số điện thoại – BUG-005) và người dùng không có mã nào để báo lại; mất kết nối CSDL bị trả 500 như mọi lỗi khác.
+- **Ảnh hưởng:** Cấu trúc lỗi giữ nguyên `{ error: { code, message, details } }` (TD-06); thêm mã `SERVICE_UNAVAILABLE` (503), `details` của lỗi 5xx có `requestId`. Cập nhật `docs/api-contract.md` mục 7. Test TC-47 → TC-53. Các lỗi gỡ trong quá trình này ghi ở `docs/bug-log.md`.
+
+### TD-18 Cài thư viện bằng `npm ci`, chưa đóng gói Docker ở BT2
+- **Nguồn:** Buổi 11, phần 1 (khóa phiên bản) và phần 4 (Docker – BT2 không bắt buộc, BT3 bắt buộc).
+- **Quyết định:** README dùng `npm ci` cho cả API và giao diện; thêm `.nvmrc` (Node 20), `.gitattributes` (tệp `.sh` luôn xuống dòng LF). GIỮ việc đóng gói Docker sang BT3.
+- **Lý do:** `npm install` có thể nâng phiên bản so với bản đã chạy; `npm ci` cài đúng theo tệp khóa. Docker chưa chạy thử được trên máy cá nhân (chưa cài Docker Desktop) nên chưa đưa vào repo – không nộp thứ chưa kiểm chứng.
+- **Ảnh hưởng:** Mục 2, 3 của README.
+

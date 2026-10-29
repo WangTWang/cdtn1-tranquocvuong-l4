@@ -8,17 +8,18 @@
 Hệ thống giúp quản lý trung tâm bảo hành của Mekong Mobile phân công phiếu bảo hành cho kỹ thuật viên theo tay nghề, trung tâm và khối lượng công việc hiện tại, thay cho việc phân công thủ công theo trí nhớ. Kỹ thuật viên xem được phiếu của mình theo hạn cam kết; nhân viên tiếp nhận đặt lịch hẹn giao – nhận máy không trùng lịch.
 
 ## 2. Yêu cầu môi trường
-- Node.js 20 LTS trở lên (đang dùng v24), npm 10
+- Node.js 20 LTS trở lên (ghi trong `.nvmrc`; đã chạy thử trên Node 20, 22, 24), npm 10 trở lên
 - PostgreSQL 16 (đang chạy, biết mật khẩu user `postgres`)
 - Trình duyệt Chrome / Edge bản mới (giao diện React)
-- Biến môi trường: xem `.env.example` (`DB_*`, `JWT_SECRET`, `DEMO_PASSWORD`, `PORT`)
+- Biến môi trường: xem `.env.example` (`DB_*`, `JWT_SECRET`, `DEMO_PASSWORD`, `PORT`, `LOG_LEVEL`)
+- Phiên bản thư viện được khóa bằng `package-lock.json` (API) và `web/package-lock.json` (giao diện); bước 1 và 2 dùng `npm ci` nên cài đúng bản đã khóa
 
 ## 3. Hướng dẫn chạy
 Chạy lần lượt từng lệnh trong thư mục gốc của repo (Git Bash):
 
-1. Cài thư viện API: `npm install`
-2. Cài thư viện giao diện: `npm run web:install`
-3. Tạo file cấu hình: `cp .env.example .env` rồi mở `.env`, điền `DB_PASSWORD` (mật khẩu PostgreSQL) và `JWT_SECRET` (chuỗi bất kỳ)
+1. Cài thư viện API đúng phiên bản đã khóa: `npm ci`
+2. Cài thư viện giao diện đúng phiên bản đã khóa: `npm run web:install` (chạy `npm ci --prefix web`)
+3. Tạo file cấu hình: `cp .env.example .env` rồi mở `.env`, điền `DB_PASSWORD` (mật khẩu PostgreSQL) và đổi `JWT_SECRET` thành chuỗi bí mật riêng
 4. Tạo cơ sở dữ liệu trống (tên lấy từ `DB_NAME` trong `.env`): `npm run db:create`
 5. Tạo bảng: `npm run db:migrate`
 6. Nạp dữ liệu mẫu Mekong Mobile và tài khoản: `npm run db:seed`
@@ -30,6 +31,8 @@ Chạy lần lượt từng lệnh trong thư mục gốc của repo (Git Bash):
 
 Bước 5 và 6 chạy lại lần hai không lỗi và không nhân đôi dữ liệu (migration đã chạy được ghi trong bảng `schema_migrations`; seed dùng `ON CONFLICT DO NOTHING`).
 Muốn đưa dữ liệu mẫu về như ban đầu (ví dụ sau khi đã bấm thử phân công): `npm run db:reset -- --yes` – lệnh này **xóa toàn bộ dữ liệu** của CSDL `cdtn1_l4` rồi migrate + seed lại, và từ chối chạy nếu tên CSDL không bắt đầu bằng `cdtn1`.
+
+**Log và xử lý lỗi:** API ghi log JSON ra màn hình (mỗi dòng một sự kiện: thời điểm, mức, mô tả, `requestId`), mức lấy từ `LOG_LEVEL`; mật khẩu, token, số điện thoại không bao giờ ghi vào log. Mỗi phản hồi có header `X-Request-Id`. Lỗi hệ thống trả 500, mất kết nối CSDL trả 503, kèm câu "Mã tra cứu: <requestId>" để đối chiếu với log. `/health` trả `{"status":"ok","db":"ok"}` khi API và CSDL đều trả lời được.
 
 Khi sửa giao diện: chạy `npm start` ở một cửa sổ và `npm run web:dev` ở cửa sổ khác, mở http://localhost:5173 (tự tải lại khi sửa mã, `/api` được chuyển sang cổng 3000).
 
@@ -89,7 +92,8 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - `src/services/` – lớp nghiệp vụ: toàn bộ quy tắc QT/RB, không biết HTTP
 - `src/repositories/` – lớp truy cập dữ liệu: chỉ đọc/ghi PostgreSQL
 - `src/contracts/` – hợp đồng dữ liệu ở ranh giới service → trình bày (`toTicketView`, che số điện thoại QT-15)
-- `src/middlewares/` – xác thực JWT, phân quyền, dịch lỗi sang mã HTTP
+- `src/middlewares/` – gắn `requestId`, xác thực JWT, phân quyền, middleware lỗi duy nhất (dịch lỗi sang mã HTTP, ghi log một lần)
+- `src/errors/`, `src/utils/logger.js` – loại lỗi của ứng dụng (`AppError`, `DataAccessError`), logger JSON
 - `src/config/db.js` – kết nối PostgreSQL, hàm chạy transaction
 - `db/migrations/` – tạo bảng (đúng DDL đã nộp ở BT1, `db/schema.sql`); `db/seeds/` – dữ liệu mẫu
 - `scripts/` – tạo CSDL, migrate, seed, sinh seed từ dữ liệu mẫu, reset, tạo token thử
@@ -99,7 +103,7 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - `docs/` – tài liệu BT1, `thay-doi-thiet-ke.md`, `ai-disclosure.md`
 
 ## 5. Kiểm thử
-`npm test` – 49 unit test, không cần PostgreSQL. `npm run test:db` – 4 test đồng thời trên PostgreSQL thật.
+`npm test` – 56 unit test, không cần PostgreSQL. `npm run test:db` – 4 test đồng thời trên PostgreSQL thật.
 
 | Loại | Test |
 |---|---|
@@ -108,6 +112,7 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 | Dữ liệu sai | TC-05, TC-06, TC-07, TC-10–TC-14 · TC-17 phiếu đã phân công · TC-19, TC-20 kỹ thuật viên / phiếu không hợp lệ · TC-23 lý do dưới 5 ký tự · TC-31 sai mật khẩu · TC-34, TC-35, TC-39 |
 | Chuẩn hóa dữ liệu mẫu | TC-44 số điện thoại +84 / 84 / khoảng trắng · TC-45 giá trị biên 9 và 11 số, dữ liệu hỏng · TC-46 loại khách trùng |
 | Hợp đồng dữ liệu (buổi 9) | TC-26 đủ trường, ISO 8601 · TC-27 ý nghĩa của null · TC-28 che số điện thoại · TC-29 isOverdue |
+| Log và xử lý lỗi (buổi 11) | TC-47 che dữ liệu nhạy cảm trong log · TC-48 mức log · TC-49 mất CSDL → 503 + mã tra cứu, ghi đúng một dòng ERROR · TC-50 lỗi nghiệp vụ không ghi ERROR · TC-51 nhận ra lỗi kết nối · TC-52 ROLLBACK lỗi không che lỗi gốc · TC-53 header X-Request-Id, /health báo CSDL |
 | Phân quyền (NFR2) | TC-07, TC-11, TC-20 khác trung tâm → 403 · TC-24, TC-25, TC-28 che số điện thoại · TC-36 sai vai trò → 403 · TC-37 không token → 401 |
 | Đồng thời (NFR3, `test:db`) | TC-40 hai quản lý phân công cùng phiếu → đúng 1 thành công · TC-41 năm lệnh cùng lúc · TC-42 hai lịch chồng lấn cùng lúc → đúng 1 thành công |
 
@@ -125,4 +130,6 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - [x] Sửa lỗi: màn hình phân công vẫn hiện trạng thái "Mới" sau khi phân công xong (tải lại phiếu sau khi lưu)
 - [x] Dữ liệu mẫu Mekong Mobile theo quy mô case study: 6 trung tâm, 38 kỹ thuật viên, 381 khách hàng, 154 phiếu (TD-16)
 - [x] Phép thử "thư mục trống": clone repo sang thư mục mới, chạy đúng mục 3 – kết quả ở `docs/kiem-thu-thu-muc-trong.md`
-- [ ] Rà soát, sửa lỗi theo buổi 11; báo cáo BT2 kèm đủ DDL 6 bảng (TD-02); tag `v0.2` (hạn cuối buổi 12)
+- [x] Buổi 11: khóa phiên bản (`npm ci`, `.nvmrc`), log JSON có `requestId` và che dữ liệu nhạy cảm, middleware lỗi duy nhất (500 / 503 kèm mã tra cứu), `docs/bug-log.md` (7 lỗi đã gỡ)
+- [x] Bài tập 2: tag `v0.2`; báo cáo PDF kèm đủ DDL 6 bảng (TD-02)
+- [ ] Docker (`Dockerfile`, `docker-compose.yml`) – làm ở BT3 (buổi 15)
