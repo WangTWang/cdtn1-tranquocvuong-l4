@@ -59,6 +59,18 @@ describe('Phân quyền theo vai trò (NFR2)', () => {
     expect(services.assignmentService.assignTicket).toHaveBeenCalledWith(1, 2, expect.objectContaining({ role: 'QUAN_LY', centerId: 1 }));
   });
 
+  test('TC-53: mọi phản hồi có header X-Request-Id; /health báo 503 khi CSDL không trả lời', async () => {
+    const res = await call('GET', '/api/tickets?status=MOI', 'QUAN_LY');
+    expect(res.headers.get('x-request-id')).toMatch(/^[0-9a-f]{8}$/);
+    const down = createApp({ ...services, checkDb: async () => { throw new Error('ECONNREFUSED'); } }, { webDir: '/khong-co' }).listen(0);
+    const r = await fetch(`http://127.0.0.1:${down.address().port}/health`);
+    expect(r.status).toBe(503);
+    expect(await r.json()).toEqual({ status: 'loi', db: 'khong ket noi duoc' });
+    await new Promise((resolve) => down.close(resolve));
+    const ok = await fetch(`${base}/health`);
+    expect(await ok.json()).toEqual({ status: 'ok', db: 'ok' });
+  });
+
   test('TC-39: dữ liệu sai bị chặn ở tầng 1 với 400 trước khi vào service', async () => {
     const before = services.assignmentService.assignTicket.mock.calls.length;
     const res = await call('POST', '/api/tickets/1/assignment', 'QUAN_LY', { technicianId: 'abc' });
