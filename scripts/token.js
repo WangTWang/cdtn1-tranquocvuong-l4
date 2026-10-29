@@ -1,5 +1,6 @@
 // Tao JWT de thu API khi chua co man hinh dang nhap.
 // Dung: npm run token -- <employeeId>     (vd: 1 = quan ly, 2 = tiep nhan theo du lieu mau)
+const errmsg = require('./lib/errmsg');
 require('dotenv').config({ quiet: true });
 const jwt = require('jsonwebtoken');
 const { pool } = require('../src/config/db');
@@ -16,4 +17,4 @@ async function main() {
   console.log(`${e.fullName} (${e.role}, trung tâm ${e.centerId}):\n${token}`);
 }
 
-main().catch((err) => { console.error(err.message); process.exitCode = 1; }).finally(() => pool.end());
+main().catch((err) => { console.error(errmsg(err)); process.exitCode = 1; }).finally(() => pool.end());

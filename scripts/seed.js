@@ -1,5 +1,6 @@
 // Nap du lieu mau db/seeds/*.sql. Moi file dung ON CONFLICT DO NOTHING / chi gan khi con trong nen chay lai KHONG nhan doi.
 // Sau do dat mat khau demo (bien DEMO_PASSWORD trong .env) cho tai khoan chua co mat khau.
+const errmsg = require('./lib/errmsg');
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('../src/config/db');
@@ -30,5 +31,5 @@ async function main() {
 
 main()
   .then(() => console.log('Seed xong.'))
-  .catch((err) => { console.error(`Seed lỗi: ${err.message}`); process.exitCode = 1; })
+  .catch((err) => { console.error(`Seed lỗi: ${errmsg(err)}`); process.exitCode = 1; })
   .finally(() => pool.end());

@@ -1,6 +1,7 @@
 // Dua CSDL ve trang thai ban dau: xoa toan bo bang roi migrate + seed lai.
 // CHI dung cho CSDL hoc tap (ten bat dau bang "cdtn1"), va bat buoc them co --yes.
 // Dung: npm run db:reset -- --yes
+const errmsg = require('./lib/errmsg');
 require('dotenv').config({ quiet: true });
 const { execFileSync } = require('child_process');
 const path = require('path');
@@ -19,4 +20,4 @@ async function main() {
   }
 }
 
-main().catch((err) => { console.error(err.message); process.exitCode = 1; });
+main().catch((err) => { console.error(errmsg(err)); process.exitCode = 1; });

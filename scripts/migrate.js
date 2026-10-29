@@ -1,5 +1,6 @@
 // Chay cac file db/migrations/*.sql theo thu tu ten file.
 // File nao da chay thi ghi vao bang schema_migrations va BO QUA o lan sau (chay lai khong loi).
+const errmsg = require('./lib/errmsg');
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('../src/config/db');
@@ -30,5 +31,5 @@ async function main() {
 
 main()
   .then(() => console.log('Migration xong.'))
-  .catch((err) => { console.error(err.message); process.exitCode = 1; })
+  .catch((err) => { console.error(errmsg(err)); process.exitCode = 1; })
   .finally(() => pool.end());
