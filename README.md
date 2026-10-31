@@ -34,6 +34,14 @@ Muốn đưa dữ liệu mẫu về như ban đầu (ví dụ sau khi đã bấm
 
 **Log và xử lý lỗi:** API ghi log JSON ra màn hình (mỗi dòng một sự kiện: thời điểm, mức, mô tả, `requestId`), mức lấy từ `LOG_LEVEL`; mật khẩu, token, số điện thoại không bao giờ ghi vào log. Mỗi phản hồi có header `X-Request-Id`. Lỗi hệ thống trả 500, mất kết nối CSDL trả 503, kèm câu "Mã tra cứu: <requestId>" để đối chiếu với log. `/health` trả `{"status":"ok","db":"ok"}` khi API và CSDL đều trả lời được.
 
+**Kiểm tra hệ thống đã chạy đúng** (sau bước 9):
+1. `curl http://localhost:3000/health` → `{"status":"ok","db":"ok"}`.
+2. Mở http://localhost:3000, đăng nhập `tram` → thấy "Phiếu chờ phân công" với dòng "21 phiếu chờ phân công · … phiếu đã quá hạn cam kết".
+3. Gõ `pham` vào ô tìm kiếm, bấm Lọc → chỉ còn phiếu của khách họ Phạm; gõ `zzz` → thông báo "Không có phiếu … khớp bộ lọc" kèm nút Xóa bộ lọc.
+4. Bấm "Phân công" ở phiếu BH-000118/2026 → chọn kỹ thuật viên → bấm "Phân công" → khung xanh "Đã phân công…".
+
+**Sơ đồ kiến trúc đã hiện thực:** `docs/architecture-thuc-te.png` (nguồn `docs/architecture-thuc-te.dot`); sơ đồ dự kiến ở BT1: `docs/architecture.png`.
+
 Khi sửa giao diện: chạy `npm start` ở một cửa sổ và `npm run web:dev` ở cửa sổ khác, mở http://localhost:5173 (tự tải lại khi sửa mã, `/api` được chuyển sang cổng 3000).
 
 **Tài khoản mẫu** (mật khẩu chung là giá trị `DEMO_PASSWORD` trong `.env`):
@@ -73,7 +81,7 @@ Mỗi màn hình được bọc bằng component `DataState` (`web/src/component
 | Phương thức · Đường dẫn | Vai trò | Chức năng |
 |---|---|---|
 | `POST /api/auth/login` | không cần token | E0 – Đăng nhập, trả JWT |
-| `GET /api/tickets?status=MOI\|DA_PHAN_CONG` | QUAN_LY; TIEP_NHAN chỉ `DA_PHAN_CONG` | E1 – Danh sách phiếu theo hạn cam kết, phân trang |
+| `GET /api/tickets?status=MOI\|DA_PHAN_CONG&q=&priority=` | QUAN_LY; TIEP_NHAN chỉ `DA_PHAN_CONG` | E1 – Danh sách phiếu theo hạn cam kết, phân trang, lọc theo mã phiếu / tên khách (không cần dấu) và mức ưu tiên; trả kèm số phiếu quá hạn |
 | `GET /api/tickets/:ticketId` | mọi vai trò cùng trung tâm | Xem một phiếu |
 | `GET /api/tickets/:ticketId/technician-suggestions` | QUAN_LY | E2 – Gợi ý kỹ thuật viên (QT-08) |
 | `POST /api/tickets/:ticketId/assignment` | QUAN_LY | E3 – Phân công (transaction, NFR3) |
@@ -103,7 +111,7 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - `docs/` – tài liệu BT1, `thay-doi-thiet-ke.md`, `ai-disclosure.md`
 
 ## 5. Kiểm thử
-`npm test` – 56 unit test, không cần PostgreSQL. `npm run test:db` – 4 test đồng thời trên PostgreSQL thật.
+`npm test` – 58 unit test, không cần PostgreSQL. `npm run test:db` – 5 test trên PostgreSQL thật (4 test đồng thời, 1 test bộ lọc).
 
 | Loại | Test |
 |---|---|
@@ -111,6 +119,7 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 | Giá trị biên | TC-02, TC-03 chạm biên RB-02 · TC-04 23:30 thứ Bảy / 00:00 Chủ nhật · TC-18 tay nghề đúng 3 / 2 (QT-08) · TC-33 pageSize 100 / 101 · TC-43 hai lịch nối tiếp đặt cùng lúc |
 | Dữ liệu sai | TC-05, TC-06, TC-07, TC-10–TC-14 · TC-17 phiếu đã phân công · TC-19, TC-20 kỹ thuật viên / phiếu không hợp lệ · TC-23 lý do dưới 5 ký tự · TC-31 sai mật khẩu · TC-34, TC-35, TC-39 |
 | Chuẩn hóa dữ liệu mẫu | TC-44 số điện thoại +84 / 84 / khoảng trắng · TC-45 giá trị biên 9 và 11 số, dữ liệu hỏng · TC-46 loại khách trùng |
+| Bộ lọc danh sách (TD-19) | TC-54 q, priority: biên 50 ký tự, NFC · TC-55 trả `totalAll`, `overdue` · TC-56 (`test:db`) tìm không dấu, `%` không thành ký tự đại diện |
 | Hợp đồng dữ liệu (buổi 9) | TC-26 đủ trường, ISO 8601 · TC-27 ý nghĩa của null · TC-28 che số điện thoại · TC-29 isOverdue |
 | Log và xử lý lỗi (buổi 11) | TC-47 che dữ liệu nhạy cảm trong log · TC-48 mức log · TC-49 mất CSDL → 503 + mã tra cứu, ghi đúng một dòng ERROR · TC-50 lỗi nghiệp vụ không ghi ERROR · TC-51 nhận ra lỗi kết nối · TC-52 ROLLBACK lỗi không che lỗi gốc · TC-53 header X-Request-Id, /health báo CSDL |
 | Phân quyền (NFR2) | TC-07, TC-11, TC-20 khác trung tâm → 403 · TC-24, TC-25, TC-28 che số điện thoại · TC-36 sai vai trò → 403 · TC-37 không token → 401 |
@@ -132,4 +141,5 @@ Mỗi lớp trong sơ đồ kiến trúc (`docs/architecture.drawio`) là một 
 - [x] Phép thử "thư mục trống": clone repo sang thư mục mới, chạy đúng mục 3 – kết quả ở `docs/kiem-thu-thu-muc-trong.md`
 - [x] Buổi 11: khóa phiên bản (`npm ci`, `.nvmrc`), log JSON có `requestId` và che dữ liệu nhạy cảm, middleware lỗi duy nhất (500 / 503 kèm mã tra cứu), `docs/bug-log.md` (7 lỗi đã gỡ)
 - [x] Bài tập 2: tag `v0.2`; báo cáo PDF kèm đủ DDL 6 bảng (TD-02)
+- [x] Đối chiếu đề bài BT2 chính thức: bộ lọc danh sách, rỗng phân biệt "chưa có dữ liệu" / "bộ lọc không ra kết quả", tỉ lệ quá hạn, sơ đồ kiến trúc thực tế (TD-19)
 - [ ] Docker (`Dockerfile`, `docker-compose.yml`) – làm ở BT3 (buổi 15)

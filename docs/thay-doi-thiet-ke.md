@@ -127,3 +127,11 @@ File được nối tiếp ở BT2, BT3 (tiêu chí 3 của rubric: Nhất quán
 - **Lý do:** `npm install` có thể nâng phiên bản so với bản đã chạy; `npm ci` cài đúng theo tệp khóa. Docker chưa chạy thử được trên máy cá nhân (chưa cài Docker Desktop) nên chưa đưa vào repo – không nộp thứ chưa kiểm chứng.
 - **Ảnh hưởng:** Mục 2, 3 của README.
 
+## 5. Đối chiếu đề bài Bài tập 2 chính thức (31/10/2026)
+
+### TD-19 Bộ lọc danh sách phiếu, mốc so sánh và sơ đồ kiến trúc thực tế
+- **Nguồn:** Đề bài BT2 mục 2.3 (trạng thái rỗng phải phân biệt "chưa có dữ liệu" và "bộ lọc không ra kết quả"; mỗi con số phải có mốc so sánh) và mục 3.2 (`docs/architecture-thuc-te.*`).
+- **Quyết định:** BỔ SUNG bộ lọc cho E1: `q` (một phần mã phiếu hoặc tên khách, không phân biệt dấu nhờ hàm `khong_dau` ở migration `003_tim_kiem.sql`) và `priority`. E1 trả thêm `totalAll` (số phiếu cùng trạng thái khi không lọc) và `overdue` (số phiếu quá hạn). Màn hình danh sách hiện "N phiếu · M phiếu đã quá hạn (x%)" và hai thông báo rỗng khác nhau. Thêm sơ đồ `docs/architecture-thuc-te.dot` / `.png` vẽ đúng các thành phần đã hiện thực (sơ đồ BT1 `docs/architecture.png` giữ nguyên để đối chiếu).
+- **Lý do:** Không có bộ lọc thì không thể có trạng thái "bộ lọc không ra kết quả"; tổng số phiếu đứng một mình không cho biết tình hình tốt hay xấu – tỉ lệ quá hạn là mốc so sánh.
+- **Ảnh hưởng:** `src/repositories/ticket.repository.js`, `src/validators/ticket.validator.js`, `src/services/assignment.service.js`, `web/src/pages/TicketListPage.jsx`; `docs/api-contract.md` mục 8; test TC-54, TC-55, TC-56. Lược đồ 6 bảng không đổi.
+

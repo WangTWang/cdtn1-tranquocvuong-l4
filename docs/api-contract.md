@@ -410,3 +410,16 @@ Chi tiết lý do ở `docs/thay-doi-thiet-ke.md` (TD-09 → TD-13).
 - Mọi phản hồi có header `X-Request-Id`; với lỗi 5xx, `message` kết thúc bằng "Mã tra cứu: <requestId>" và `details` = `[{ "requestId": "<requestId>" }]`. Chi tiết kỹ thuật (ngăn xếp, mã lỗi pg) chỉ có trong log, không trả cho người dùng.
 - `GET /health` (không cần token): 200 `{ "status": "ok", "db": "ok" }`; 503 `{ "status": "loi", "db": "khong ket noi duoc" }` khi CSDL không trả lời.
 
+---
+
+## 8. Cập nhật 31/10/2026 – bộ lọc danh sách phiếu (TD-19)
+
+`GET /api/tickets?status=MOI&q=pham&priority=CAO&page=1&pageSize=10`
+
+| Tham số | Bắt buộc | Ràng buộc | Lỗi |
+|---|---|---|---|
+| `q` | Không | 1–50 ký tự; khớp một phần mã phiếu hoặc tên khách, không phân biệt hoa thường và dấu; `%`, `_` được tìm đúng chữ | 400 |
+| `priority` | Không | `CAO` \| `TRUNG_BINH` \| `THAP` | 400 |
+
+Phản hồi 200: `{ "data": { items, page, pageSize, total, totalAll, overdue, filter: { q, priority } } }` – `total`: số phiếu khớp bộ lọc; `totalAll`: số phiếu cùng trạng thái khi KHÔNG lọc (giao diện dùng để phân biệt "chưa có dữ liệu" với "bộ lọc không ra kết quả"); `overdue`: số phiếu quá hạn cam kết trong kết quả lọc.
+

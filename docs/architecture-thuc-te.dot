@@ -1,0 +1,44 @@
+// Sơ đồ kiến trúc ĐÃ HIỆN THỰC (Bài tập 2, tag v0.2) – luồng L4.
+// Sinh ảnh: dot -Tpng docs/architecture-thuc-te.dot -o docs/architecture-thuc-te.png
+digraph kien_truc_thuc_te {
+  graph [rankdir=TB, fontname="Times New Roman", fontsize=13, nodesep=0.35, ranksep=0.45, label="Kiến trúc đã hiện thực – Smart CRM Mekong Mobile · Luồng L4 (BT2, tag v0.2)\nMũi tên = chiều gọi; lớp trên chỉ gọi lớp ngay dưới, không gọi ngược", labelloc=t];
+  node  [shape=box, style="rounded,filled", fillcolor="#ffffff", fontname="Times New Roman", fontsize=11];
+  edge  [fontname="Times New Roman", fontsize=9];
+
+  subgraph cluster_web {
+    label="Trình duyệt – React 18 + Vite (web/)"; style=filled; fillcolor="#e8f0fb";
+    pages   [label="src/pages/ – 5 màn hình\nĐăng nhập · Danh sách phiếu (WF1)\nPhân công / đổi KTV (WF2) · Đặt lịch hẹn (WF3)\nPhiếu của tôi"];
+    datast  [label="components/DataState.jsx + hooks/useAsync.js\nđang tải · rỗng (chưa có dữ liệu / bộ lọc rỗng) · lỗi + Thử lại"];
+    client  [label="api/client.js – lớp DUY NHẤT gọi fetch\nJWT trong sessionStorage · 401 → về đăng nhập"];
+    pages -> datast; pages -> client;
+  }
+
+  subgraph cluster_api {
+    label="API – Node.js 20 + Express 5 (src/) · phục vụ luôn web/dist ở cổng 3000"; style=filled; fillcolor="#eef7ee";
+    mw      [label="middlewares/ – requestId (X-Request-Id) → auth (JWT, requireRole)"];
+    routes  [label="routes/ + validators/ – LỚP TRÌNH BÀY\nauth · tickets (E1–E4) · technicians (CRUD, E5) · appointments (E6, CRUD)\nkiểm định dạng → 400 kèm tên trường"];
+    services[label="services/ – LỚP NGHIỆP VỤ (không biết HTTP)\nassignment (QT-07, QT-08, RB-01, NFR3) · appointment (RB-02, RB-03)\ntechnician (QT-13) · auth (scrypt + JWT)"];
+    contract[label="contracts/ticket.contract.js\ntoTicketView – che SĐT (QT-15)", fillcolor="#fffbe6"];
+    repos   [label="repositories/ – LỚP DỮ LIỆU\nticket · technician · appointment · employee · log\nchỉ SQL, SELECT … FOR UPDATE trong transaction"];
+    db      [label="config/db.js – pool, withTransaction\ndịch lỗi kết nối → DataAccessError"];
+    err     [label="middlewares/errorHandler.js – nơi DUY NHẤT\nAppError → 4xx · DataAccessError → 503 · khác → 500\nkèm “Mã tra cứu”, ghi log một lần", fillcolor="#fdecea"];
+    logger  [label="utils/logger.js – log JSON ra stdout\nmức theo LOG_LEVEL, tự che mật khẩu/token/SĐT", fillcolor="#f4f4f4"];
+    mw -> routes -> services -> repos -> db;
+    services -> contract [style=dashed, label="định hình kết quả"];
+    routes -> err [style=dotted, label="lỗi ném lên"];
+    err -> logger [style=dotted];
+  }
+
+  pg [label="PostgreSQL 16 – CSDL cdtn1_l4\n6 bảng cốt lõi + 5 bảng phụ trợ (+ username, password_hash)\nmigrations 001–003 · seeds 001–003", shape=cylinder, fillcolor="#fff3e0"];
+  subgraph cluster_tools {
+    label="Công cụ dòng lệnh và kiểm thử"; style=filled; fillcolor="#f7f7f7";
+    scripts [label="scripts/ – db:create · db:migrate · db:seed · db:reset\ngen-seed-mekong (data/mau/customers_raw.csv → seed 003)"];
+    tests   [label="tests/ – Jest: 58 unit test (repository giả, không cần CSDL)\ntests/db/ – 5 test trên PostgreSQL thật (NFR3, RB-02, bộ lọc)"];
+  }
+
+  client -> mw [label="HTTP JSON /api/*\nAuthorization: Bearer"];
+  db -> pg [label="SQL (pg)"];
+  scripts -> pg [style=dashed];
+  tests -> services [style=dashed, label="gọi trực tiếp"];
+  tests -> pg [style=dashed];
+}
