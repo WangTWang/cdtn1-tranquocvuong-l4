@@ -142,3 +142,14 @@ describe('Phiếu của tôi (E5) và danh sách (E1)', () => {
     expect(tn.items[0].customerPhone).toBe('091****678');
   });
 });
+
+describe('Danh sách có bộ lọc (TD-19)', () => {
+  test('TC-55: chuyển bộ lọc xuống lớp dữ liệu; trả kèm totalAll và overdue để giao diện phân biệt "chưa có dữ liệu" với "bộ lọc không ra kết quả"', async () => {
+    const { service, ticketRepo } = build();
+    ticketRepo.listByCenterAndStatus.mockResolvedValueOnce({ items: [], total: 0, totalAll: 21, overdue: 0 });
+    const res = await service.listTickets(QUAN_LY, { status: 'MOI', page: 2, pageSize: 10, q: 'zzz', priority: 'CAO' });
+    expect(ticketRepo.listByCenterAndStatus).toHaveBeenCalledWith(1, 'MOI', { limit: 10, offset: 10, q: 'zzz', priority: 'CAO' });
+    expect(res).toMatchObject({ items: [], total: 0, totalAll: 21, overdue: 0, filter: { q: 'zzz', priority: 'CAO' } });
+  });
+});
+

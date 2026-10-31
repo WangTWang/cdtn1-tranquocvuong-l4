@@ -30,7 +30,7 @@ const { validateLogin } = require('../../src/validators/auth.validator');
 
 describe('Validator Sprint 2', () => {
   test('TC-33: danh sách phiếu – status bắt buộc đúng giá trị, page và pageSize có mặc định và giới hạn 1–100', () => {
-    expect(validateListQuery({ status: 'MOI' })).toEqual({ status: 'MOI', page: 1, pageSize: 20 });
+    expect(validateListQuery({ status: 'MOI' })).toEqual({ status: 'MOI', page: 1, pageSize: 20, q: null, priority: null });
     expect(() => validateListQuery({ status: 'HOAN_TAT' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
     expect(validateListQuery({ status: 'MOI', pageSize: '100' }).pageSize).toBe(100);
     expect(() => validateListQuery({ status: 'MOI', pageSize: '101' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
@@ -48,5 +48,16 @@ describe('Validator Sprint 2', () => {
   test('TC-35: đăng nhập – thiếu tên hoặc mật khẩu bị từ chối ở tầng 1', () => {
     expect(() => validateLogin({ username: '  ', password: '' })).toThrow(expect.objectContaining({ code: 'VALIDATION_ERROR' }));
     expect(validateLogin({ username: ' tram ', password: 'x' })).toEqual({ username: 'tram', password: 'x' });
+  });
+});
+
+describe('Bộ lọc danh sách phiếu (TD-19)', () => {
+  test('TC-54: q được cắt khoảng trắng, chuẩn hóa NFC, rỗng coi như không lọc; q quá 50 ký tự và priority sai bị từ chối', () => {
+    expect(validateListQuery({ status: 'MOI', q: '  Phạm ', priority: 'CAO' })).toMatchObject({ q: 'Phạm', priority: 'CAO' });
+    expect(validateListQuery({ status: 'MOI', q: 'Phạm' }).q).toBe('Phạm');            // dấu tổ hợp (NFD) -> NFC
+    expect(validateListQuery({ status: 'MOI', q: '   ', priority: '' })).toMatchObject({ q: null, priority: null });
+    expect(validateListQuery({ status: 'MOI', q: 'a'.repeat(50) }).q).toHaveLength(50);    // biên: đúng 50 ký tự
+    const err = (() => { try { validateListQuery({ status: 'MOI', q: 'a'.repeat(51), priority: 'GAP' }); } catch (e) { return e; } return null; })();
+    expect(err.details.map((d) => d.field)).toEqual(['q', 'priority']);
   });
 });

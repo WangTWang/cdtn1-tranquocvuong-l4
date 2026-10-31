@@ -85,3 +85,17 @@ test('TC-43 (RB-02, biên): hai lịch hẹn nối tiếp nhau (14:45 kết thú
   ]);
   expect(results.map((r) => r.status)).toEqual(['fulfilled', 'fulfilled']);
 });
+
+test('TC-56 (TD-19): lọc theo tên khách không phân biệt dấu; ký tự % và _ được tìm đúng chữ, không thành ký tự đại diện', async () => {
+  const id = await newTicket();                          // phiếu của khách 1 - Nguyễn Thị Hoa
+  const code = (await ticketRepo.findById(id)).ticketCode;
+  const page = { limit: 100, offset: 0 };
+  const noAccent = await ticketRepo.listByCenterAndStatus(1, 'MOI', { ...page, q: 'nguyen thi hoa' });
+  expect(noAccent.items.map((t) => t.ticketId)).toContain(id);
+  const byCode = await ticketRepo.listByCenterAndStatus(1, 'MOI', { ...page, q: code });
+  expect(byCode.total).toBe(1);
+  const pct = await ticketRepo.listByCenterAndStatus(1, 'MOI', { ...page, q: '%' });
+  expect(pct.total).toBe(0);
+  expect(pct.totalAll).toBeGreaterThan(0);               // vẫn biết trung tâm có phiếu -> "bộ lọc không ra kết quả"
+});
+
