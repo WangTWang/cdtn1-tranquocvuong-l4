@@ -41,15 +41,30 @@ async function findByIdForUpdate(ticketId, db) {
   return findById(ticketId, db);
 }
 
-// Phieu cua trung tam theo trang thai, sap theo han cam ket tang dan (FR1).
-async function listByCenterAndStatus(centerId, status, { limit, offset }, db = pool) {
+// Dieu kien loc: q khop mot phan ma phieu hoac ten khach (khong phan biet hoa thuong, khong phan biet dau - ham
+// khong_dau o migration 003), priority dung bang.
+// Ky tu % va _ cua nguoi dung duoc thoat de tim dung chu, khong thanh ky tu dai dien cua LIKE.
+const FILTER = `($3::text IS NULL OR tk.ticket_code ILIKE $3 ESCAPE '\\' OR khong_dau(c.full_name) LIKE khong_dau($3) ESCAPE '\\')
+               AND ($4::text IS NULL OR tk.priority = $4)`;
+const likePattern = (q) => (q ? `%${q.replace(/[\\%_]/g, (m) => `\\${m}`)}%` : null);
+
+// Phieu cua trung tam theo trang thai (va bo loc), sap theo han cam ket tang dan (FR1).
+// Tra kem: total (khop bo loc), totalAll (cung trang thai, KHONG loc) de giao dien phan biet
+// "chua co du lieu" voi "bo loc khong ra ket qua", va overdue (so phieu qua han trong ket qua loc).
+async function listByCenterAndStatus(centerId, status, { limit, offset, q = null, priority = null }, db = pool) {
+  const params = [centerId, status, likePattern(q), priority];
   const { rows } = await db.query(
-    `${SELECT_VIEW} WHERE tk.center_id = $1 AND tk.status = $2
-      ORDER BY tk.due_date ASC, tk.ticket_id ASC LIMIT $3 OFFSET $4`,
-    [centerId, status, limit, offset]);
-  const total = await db.query(
-    'SELECT COUNT(*)::int AS n FROM ticket WHERE center_id = $1 AND status = $2', [centerId, status]);
-  return { items: rows.map(map), total: total.rows[0].n };
+    `${SELECT_VIEW} WHERE tk.center_id = $1 AND tk.status = $2 AND ${FILTER}
+      ORDER BY tk.due_date ASC, tk.ticket_id ASC LIMIT $5 OFFSET $6`,
+    [...params, limit, offset]);
+  const counts = await db.query(
+    `SELECT COUNT(*) FILTER (WHERE ${FILTER})::int AS total,
+            COUNT(*)::int AS total_all,
+            COUNT(*) FILTER (WHERE ${FILTER} AND tk.due_date < now())::int AS overdue
+       FROM ticket tk JOIN customer c ON c.customer_id = tk.customer_id
+      WHERE tk.center_id = $1 AND tk.status = $2`, params);
+  const n = counts.rows[0];
+  return { items: rows.map(map), total: n.total, totalAll: n.total_all, overdue: n.overdue };
 }
 
 // Phieu dang gan cho mot ky thuat vien (E5).

@@ -40,3 +40,8 @@ td input[type="radio"] { width: auto; margin: 0; display: inline; }
 .login { max-width: 380px; margin: 80px auto; padding: 0 16px; }
 .skeleton-row { height: 28px; margin: 8px 0; background: linear-gradient(90deg, #eee, #f8f8f8, #eee); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; align-items: center; }
+.filter input, .filter select { font: inherit; padding: 5px 6px; border: 1px solid #000; }
+.filter input { min-width: 280px; }
+button.secondary { background: #fff; color: #1f4e79; }
+.summary { margin: 6px 0; }

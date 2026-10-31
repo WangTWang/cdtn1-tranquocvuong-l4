@@ -39,11 +39,16 @@ function createAssignmentService({ ticketRepo, technicianRepo, logRepo, withTran
   }
 
   // UC1 / FR1: phieu cua trung tam theo trang thai, sap theo han cam ket.
-  async function listTickets(caller, { status, page, pageSize }) {
-    const { items, total } = await ticketRepo.listByCenterAndStatus(
-      caller.centerId, status, { limit: pageSize, offset: (page - 1) * pageSize });
+  // total: so phieu khop bo loc · totalAll: so phieu cung trang thai khi KHONG loc · overdue: so phieu qua han
+  // (moc so sanh cho con so tong). Giao dien dung totalAll de phan biet "chua co du lieu" va "bo loc khong ra ket qua".
+  async function listTickets(caller, { status, page, pageSize, q = null, priority = null }) {
+    const { items, total, totalAll, overdue } = await ticketRepo.listByCenterAndStatus(
+      caller.centerId, status, { limit: pageSize, offset: (page - 1) * pageSize, q, priority });
     const now = clock();
-    return { items: items.map((t) => toTicketView(t, { role: caller.role, now })), page, pageSize, total };
+    return {
+      items: items.map((t) => toTicketView(t, { role: caller.role, now })),
+      page, pageSize, total, totalAll, overdue, filter: { q, priority },
+    };
   }
 
   async function getTicket(ticketId, caller) {

@@ -47,7 +47,8 @@ const qs = (params) => new URLSearchParams(params).toString();
 export const api = {
   login: (username, password) => request('POST', '/api/auth/login', { username, password }),
   // E1: danh sach phieu theo trang thai
-  listTickets: ({ status, page = 1, pageSize = 10 }) => request('GET', `/api/tickets?${qs({ status, page, pageSize })}`),
+  listTickets: ({ status, page = 1, pageSize = 10, q = '', priority = '' }) => request('GET',
+    `/api/tickets?${qs({ status, page, pageSize, ...(q ? { q } : {}), ...(priority ? { priority } : {}) })}`),
   getTicket: (ticketId) => request('GET', `/api/tickets/${ticketId}`),
   // E2: goi y ky thuat vien
   getSuggestions: (ticketId) => request('GET', `/api/tickets/${ticketId}/technician-suggestions`),

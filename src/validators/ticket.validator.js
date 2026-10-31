@@ -2,6 +2,7 @@ const { failIfAny, parsePositiveInt } = require('./common');
 
 // Trang thai phieu duoc phep liet ke qua E1 (xem TD-11).
 const LISTABLE = ['MOI', 'DA_PHAN_CONG'];
+const PRIORITIES = ['CAO', 'TRUNG_BINH', 'THAP'];
 
 function validateListQuery(query = {}) {
   const problems = [];
@@ -14,8 +15,20 @@ function validateListQuery(query = {}) {
     if (n !== null && n > 100) problems.push({ field: 'pageSize', issue: 'tối đa 100' });
     pageSize = n ?? 20;
   }
+  // Bo loc tuy chon: q (ma phieu hoac ten khach, 1-50 ky tu), priority.
+  let q = null;
+  if (query.q !== undefined) {
+    q = String(query.q).normalize('NFC').trim();   // NFC: chu co dau go tu ban phim khac nhau van so khop duoc
+    if (q.length > 50) problems.push({ field: 'q', issue: 'tối đa 50 ký tự' });
+    if (q === '') q = null;
+  }
+  let priority = null;
+  if (query.priority !== undefined && query.priority !== '') {
+    if (!PRIORITIES.includes(query.priority)) problems.push({ field: 'priority', issue: `phải là ${PRIORITIES.join(', ')}` });
+    priority = query.priority;
+  }
   failIfAny(problems);
-  return { status: query.status, page, pageSize };
+  return { status: query.status, page, pageSize, q, priority };
 }
 
 function validateAssign(body = {}) {
